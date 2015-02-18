@@ -77,7 +77,7 @@ func (t *Transmission) getToken() {
 	}
 
 	// Add auth if present
-	if len(t.Password) > 0 {
+	if t.Password != "" {
 		req.SetBasicAuth(t.Username, t.Password)
 	}
 
@@ -127,7 +127,7 @@ func (t *Transmission) Post(postData *PostData) (*Result, error) {
 	req.Header.Add("X-Transmission-Session-Id", t.Token)
 
 	// Add auth if present
-	if len(t.Password) > 0 {
+	if t.Password != "" {
 		req.SetBasicAuth(t.Username, t.Password)
 	}
 
@@ -220,7 +220,15 @@ func (t *Transmission) RemoveTorrents(ids []int) error {
 }
 
 // New return a new pointer of transmission
-func New(endpoint string, username string, password string) *Transmission {
+func New(endpoint string) *Transmission {
+	return &Transmission{
+		Endpoint: endpoint,
+		once:     &sync.Once{},
+	}
+}
+
+// NewWithAuth returns a new pointer of transmission with Auth
+func NewWithAuth(endpoint string, username string, password string) *Transmission {
 	return &Transmission{
 		Endpoint: endpoint,
 		once:     &sync.Once{},

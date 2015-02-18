@@ -12,7 +12,9 @@ import "github.com/gregdel/transmission"
 
 func main() {
 	// New transmission
-	t := transmission.New("http://mytransmission.com/transmisson/rpc", "MyUser", "MyPassword")
+	t := transmission.New("http://mytransmission.com/transmisson/rpc")
+	// Or with auth
+	tWithAuth := transmission.NewWithAuth("http://mytransmission.com/transmisson/rpc", "MyUser", "MyPassword")
 }
 ```
 

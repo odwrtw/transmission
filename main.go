@@ -13,8 +13,6 @@ import (
 
 var tokenRegexp *regexp.Regexp
 
-const endpoint string = "http://localhost:9091/transmission/rpc"
-
 var (
 	// ErrDuplicateTorrent is the error returned when trying to add a torrent
 	// already in transmission
@@ -28,6 +26,9 @@ func init() {
 
 // Transmission type
 type Transmission struct {
+	Endpoint   string
+	Username   string
+	Password   string
 	Token      string
 	once       *sync.Once
 	tokenError error
@@ -67,9 +68,22 @@ type ResultTorrent struct {
 }
 
 func (t *Transmission) getToken() {
-	resp, err := http.Get(endpoint)
+	// Create client and request with the right headers
+	client := &http.Client{}
+	bufSend := &bytes.Buffer{}
+	req, err := http.NewRequest("GET", t.Endpoint, bufSend)
 	if err != nil {
-		t.tokenError = err
+		return
+	}
+
+	// Add auth if present
+	if len(t.Password) > 0 {
+		req.SetBasicAuth(t.Username, t.Password)
+	}
+
+	// Do the request
+	resp, err := client.Do(req)
+	if err != nil {
 		return
 	}
 	defer resp.Body.Close()
@@ -105,12 +119,17 @@ func (t *Transmission) Post(postData *PostData) (*Result, error) {
 
 	// Create client and request with the right headers
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", endpoint, bytes.NewReader(data))
+	req, err := http.NewRequest("POST", t.Endpoint, bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("X-Transmission-Session-Id", t.Token)
+
+	// Add auth if present
+	if len(t.Password) > 0 {
+		req.SetBasicAuth(t.Username, t.Password)
+	}
 
 	// Post data
 	resp, err := client.Do(req)
@@ -184,6 +203,7 @@ func (t *Transmission) AddTorrent(filename string) (*ResultTorrent, error) {
 
 // RemoveTorrents remove all the torrents with the given ids
 func (t *Transmission) RemoveTorrents(ids []int) error {
+
 	postData := &PostData{
 		Arguments: PostArguments{
 			Ids: ids,
@@ -200,8 +220,11 @@ func (t *Transmission) RemoveTorrents(ids []int) error {
 }
 
 // New return a new pointer of transmission
-func New() *Transmission {
+func New(endpoint string, username string, password string) *Transmission {
 	return &Transmission{
-		once: &sync.Once{},
+		Endpoint: endpoint,
+		once:     &sync.Once{},
+		Username: username,
+		Password: password,
 	}
 }

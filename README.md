@@ -8,11 +8,13 @@ In all the exemple I assume you have a transmission instance. Ex:
 
 ```
 package main
-import "github.com/gregdel/transmission"
+import "gitlab.quimbo.fr/odwrtw/transmission-go"
 
 func main() {
 	// New transmission
-	t := transmission.New()
+	t := transmission.New("http://mytransmission.com/transmisson/rpc")
+	// Or with auth
+	tWithAuth := transmission.NewWithAuth("http://mytransmission.com/transmisson/rpc", "MyUser", "MyPassword")
 }
 ```
 
@@ -42,11 +44,11 @@ torrent, err := t.AddTorrent("http://myfile.torrent")
 if err != nil {
 	switch err {
 	case transmission.ErrDuplicateTorrent:
-		fmt.Println("Torrent already added")
+		log.Println("Torrent already added")
 	default:
 		log.Panic(err)
 	}
 } else {
-	fmt.Printf("Torrent : %#v\n", torrent)
+	log.Printf("Torrent : %#v\n", torrent)
 }
 ```

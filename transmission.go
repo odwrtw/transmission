@@ -13,12 +13,27 @@ import (
 
 var tokenRegexp *regexp.Regexp
 
-const endpoint string = "http://localhost:9091/transmission/rpc"
-
 var (
 	// ErrDuplicateTorrent is the error returned when trying to add a torrent
 	// already in transmission
 	ErrDuplicateTorrent = errors.New("torrent already added")
+)
+
+const (
+	// StatuStopped status when torrent is stopped
+	StatuStopped = 0
+	// StatusCheckWait status when torrent is queued to while checking files
+	StatusCheckWait = 1
+	// StatusCheck status when torrent fies are being checked
+	StatusCheck = 2
+	// StatusDownloadWait status when torrent queued to be downloaded
+	StatusDownloadWait = 3
+	// StatusDownload status when torrent is downloading
+	StatusDownload = 4
+	// StatusSeedWait status when torrent is in queue to seed
+	StatusSeedWait = 5
+	// StatusSeed status when torrent is seeding
+	StatusSeed = 6
 )
 
 func init() {
@@ -28,6 +43,9 @@ func init() {
 
 // Transmission type
 type Transmission struct {
+	Endpoint   string
+	Username   string
+	Password   string
 	Token      string
 	once       *sync.Once
 	tokenError error
@@ -60,16 +78,31 @@ type ResultArguments struct {
 
 // ResultTorrent represents a torrent form the result
 type ResultTorrent struct {
-	ID        int     `json:"id"`
-	Name      string  `json:"name"`
-	Hash      string  `json:"hashString"`
-	RatioDone float64 `json:"percentDone"`
+	Hash        string  `json:"hashString"`
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	RatioDone   float64 `json:"percentDone"`
+	Status      int     `json:"status"`
+	UploadRatio float64 `json:"uploadRatio"`
 }
 
 func (t *Transmission) getToken() {
-	resp, err := http.Get(endpoint)
+	// Create client and request with the right headers
+	client := &http.Client{}
+	bufSend := &bytes.Buffer{}
+	req, err := http.NewRequest("GET", t.Endpoint, bufSend)
 	if err != nil {
-		t.tokenError = err
+		return
+	}
+
+	// Add auth if present
+	if t.Password != "" {
+		req.SetBasicAuth(t.Username, t.Password)
+	}
+
+	// Do the request
+	resp, err := client.Do(req)
+	if err != nil {
 		return
 	}
 	defer resp.Body.Close()
@@ -105,12 +138,17 @@ func (t *Transmission) Post(postData *PostData) (*Result, error) {
 
 	// Create client and request with the right headers
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", endpoint, bytes.NewReader(data))
+	req, err := http.NewRequest("POST", t.Endpoint, bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("X-Transmission-Session-Id", t.Token)
+
+	// Add auth if present
+	if t.Password != "" {
+		req.SetBasicAuth(t.Username, t.Password)
+	}
 
 	// Post data
 	resp, err := client.Do(req)
@@ -148,10 +186,12 @@ func (t *Transmission) GetList() ([]*ResultTorrent, error) {
 	postData := &PostData{
 		Arguments: PostArguments{
 			Fields: []string{
-				"name",
-				"id",
 				"hashString",
+				"id",
+				"name",
 				"percentDone",
+				"status",
+				"uploadRatio",
 			},
 		},
 		Method: "torrent-get",
@@ -200,8 +240,19 @@ func (t *Transmission) RemoveTorrents(ids []int) error {
 }
 
 // New return a new pointer of transmission
-func New() *Transmission {
+func New(endpoint string) *Transmission {
 	return &Transmission{
-		once: &sync.Once{},
+		Endpoint: endpoint,
+		once:     &sync.Once{},
+	}
+}
+
+// NewWithAuth returns a new pointer of transmission with Auth
+func NewWithAuth(endpoint string, username string, password string) *Transmission {
+	return &Transmission{
+		Endpoint: endpoint,
+		once:     &sync.Once{},
+		Username: username,
+		Password: password,
 	}
 }

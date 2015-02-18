@@ -19,6 +19,23 @@ var (
 	ErrDuplicateTorrent = errors.New("torrent already added")
 )
 
+const (
+	// StatuStopped status when torrent is stopped
+	StatuStopped = 0
+	// StatusCheckWait status when torrent is queued to while checking files
+	StatusCheckWait = 1
+	// StatusCheck status when torrent fies are being checked
+	StatusCheck = 2
+	// StatusDownloadWait status when torrent queued to be downloaded
+	StatusDownloadWait = 3
+	// StatusDownload status when torrent is downloading
+	StatusDownload = 4
+	// StatusSeedWait status when torrent is in queue to seed
+	StatusSeedWait = 5
+	// StatusSeed status when torrent is seeding
+	StatusSeed = 6
+)
+
 func init() {
 	// Regexp to get the header token
 	tokenRegexp = regexp.MustCompile("X-Transmission-Session-Id:\\s([^<]+)")
@@ -61,10 +78,12 @@ type ResultArguments struct {
 
 // ResultTorrent represents a torrent form the result
 type ResultTorrent struct {
-	ID        int     `json:"id"`
-	Name      string  `json:"name"`
-	Hash      string  `json:"hashString"`
-	RatioDone float64 `json:"percentDone"`
+	Hash        string  `json:"hashString"`
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	RatioDone   float64 `json:"percentDone"`
+	Status      int     `json:"status"`
+	UploadRatio float64 `json:"uploadRatio"`
 }
 
 func (t *Transmission) getToken() {
@@ -167,10 +186,12 @@ func (t *Transmission) GetList() ([]*ResultTorrent, error) {
 	postData := &PostData{
 		Arguments: PostArguments{
 			Fields: []string{
-				"name",
-				"id",
 				"hashString",
+				"id",
+				"name",
 				"percentDone",
+				"status",
+				"uploadRatio",
 			},
 		},
 		Method: "torrent-get",
@@ -203,7 +224,6 @@ func (t *Transmission) AddTorrent(filename string) (*ResultTorrent, error) {
 
 // RemoveTorrents remove all the torrents with the given ids
 func (t *Transmission) RemoveTorrents(ids []int) error {
-
 	postData := &PostData{
 		Arguments: PostArguments{
 			Ids: ids,

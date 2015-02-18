@@ -8,7 +8,7 @@ In all the exemple I assume you have a transmission instance. Ex:
 
 ```
 package main
-import "github.com/gregdel/transmission"
+import "gitlab.quimbo.fr/odwrtw/transmission-go"
 
 func main() {
 	// New transmission

@@ -2,6 +2,7 @@ package transmission
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -43,10 +44,12 @@ func init() {
 
 // Transmission type
 type Transmission struct {
-	Endpoint   string
-	Username   string
-	Password   string
-	Token      string
+	Endpoint     string
+	Username     string
+	Password     string
+	Token        string
+	SkipCheckSSL bool
+
 	once       *sync.Once
 	tokenError error
 }
@@ -87,31 +90,8 @@ type ResultTorrent struct {
 }
 
 func (t *Transmission) getToken() {
-	// Create client and request with the right headers
-	client := &http.Client{}
-	bufSend := &bytes.Buffer{}
-	req, err := http.NewRequest("GET", t.Endpoint, bufSend)
-	if err != nil {
-		return
-	}
-
-	// Add auth if present
-	if t.Password != "" {
-		req.SetBasicAuth(t.Username, t.Password)
-	}
-
-	// Do the request
-	resp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		t.tokenError = err
-		return
-	}
+	// Make the get request to get the token
+	body, err := t.makeGetRequest()
 
 	token := tokenRegexp.FindSubmatch(body)
 	if token == nil {
@@ -120,6 +100,58 @@ func (t *Transmission) getToken() {
 	}
 
 	t.Token = string(token[1])
+}
+
+// makeHTTPRequest will make a HTTP request on the endpoint
+func (t *Transmission) makeHTTPRequest(httpType string, data []byte) ([]byte, error) {
+	// Create Transport
+	tr := &http.Transport{}
+	if t.SkipCheckSSL {
+		tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
+	// Create Client
+	client := &http.Client{Transport: tr}
+
+	// Create Request
+	req, err := http.NewRequest(httpType, t.Endpoint, bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+
+	// Add Header
+	req.Header.Add("Content-Type", "application/json")
+
+	// Add token if exists
+	if t.Token != "" {
+		req.Header.Add("X-Transmission-Session-Id", t.Token)
+	}
+
+	// Add auth if present
+	if t.Password != "" {
+		req.SetBasicAuth(t.Username, t.Password)
+	}
+
+	// Make the request
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Read the response
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the response
+	return body, nil
+}
+
+// makeGetRequest will make a simple basic GET request on the endpoint
+func (t *Transmission) makeGetRequest() ([]byte, error) {
+	return t.makeHTTPRequest("GET", nil)
 }
 
 // Post send post data to the rpc interface
@@ -136,29 +168,8 @@ func (t *Transmission) Post(postData *PostData) (*Result, error) {
 		return nil, err
 	}
 
-	// Create client and request with the right headers
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", t.Endpoint, bytes.NewReader(data))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("X-Transmission-Session-Id", t.Token)
-
-	// Add auth if present
-	if t.Password != "" {
-		req.SetBasicAuth(t.Username, t.Password)
-	}
-
-	// Post data
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	// Get the result
-	body, err := ioutil.ReadAll(resp.Body)
+	// Make the request on the endpoint
+	body, err := t.makeHTTPRequest("POST", data)
 	if err != nil {
 		return nil, err
 	}
@@ -242,17 +253,19 @@ func (t *Transmission) RemoveTorrents(ids []int) error {
 // New return a new pointer of transmission
 func New(endpoint string) *Transmission {
 	return &Transmission{
-		Endpoint: endpoint,
-		once:     &sync.Once{},
+		Endpoint:     endpoint,
+		SkipCheckSSL: false,
+		once:         &sync.Once{},
 	}
 }
 
 // NewWithAuth returns a new pointer of transmission with Auth
 func NewWithAuth(endpoint string, username string, password string) *Transmission {
 	return &Transmission{
-		Endpoint: endpoint,
-		once:     &sync.Once{},
-		Username: username,
-		Password: password,
+		Endpoint:     endpoint,
+		Password:     password,
+		SkipCheckSSL: false,
+		Username:     username,
+		once:         &sync.Once{},
 	}
 }

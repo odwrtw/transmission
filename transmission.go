@@ -40,6 +40,10 @@ type ReqArgs struct {
 	Arguments ReqArguments `json:"arguments"`
 }
 
+type Response struct {
+	Arguments interface{} `json:"arguments"`
+}
+
 func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	if c.conf.user != "" && c.conf.password != "" {
 		req.SetBasicAuth(c.conf.user, c.conf.password)
@@ -82,6 +86,26 @@ func (c *Client) Post(method string) (*http.Response, error) {
 		return nil, err
 	}
 	return c.Do(req)
+}
+
+func (c *Client) GetTorrents() (*[]Torrent, error) {
+	resp, err := c.Post("torrent-get")
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	r := Response{Arguments: &Torrents{}}
+	err = json.Unmarshal(body, &r)
+	if err != nil {
+		return nil, err
+	}
+	t := r.Arguments.(*Torrents).Torrents
+	return t, nil
 }
 
 func New(conf Config) (*Client, error) {

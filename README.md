@@ -1,54 +1,41 @@
-# Transmission RPC client
 
-This a basic implementation of transmission rpc API.
+    package main
 
-## Features
+    import (
+            "encoding/json"
+            "io/ioutil"
 
-In all the exemple I assume you have a transmission instance. Ex:
+            "github.com/kr/pretty"
 
-```
-package main
-import "gitlab.quimbo.fr/odwrtw/transmission-go"
+            "gitlab.quimbo.fr/odwrtw/transmission-go"
+    )
 
-func main() {
-	// New transmission
-	t := transmission.New("http://mytransmission.com/transmisson/rpc")
-	// Or with auth
-	tWithAuth := transmission.NewWithAuth("http://mytransmission.com/transmisson/rpc", "MyUser", "MyPassword")
-}
-```
+    func main() {
+            conf := transmission.Config{}
+            t, err := transmission.New(conf)
+            if err != nil {
+                    pretty.Println(err)
+            }
 
-### List all the torrents
+            pretty.Println(t)
 
-```
-list, err := t.GetList()
-if err != nil {
-	log.Panic(err)
-}
-```
+            resp, err := t.Post("torrent-get")
+            if err != nil {
+                    pretty.Println("==========")
+                    pretty.Println(err)
+                    pretty.Println("==========")
+            }
 
-### Remove torrents from transmission
+            body, err := ioutil.ReadAll(resp.Body)
+            if err != nil {
+                    pretty.Println(err)
+            }
+            var f interface{}
+            err = json.Unmarshal(body, &f)
+            if err != nil {
+                    pretty.Println(err)
+            }
 
-```
-ids := []int{1,2,3}
-err := t.RemoveTorrents(ids)
-if err != nil {
-	log.Panic(err)
-}
-```
+            pretty.Println(f)
 
-### Add a new torrent
-
-```
-torrent, err := t.AddTorrent("http://myfile.torrent")
-if err != nil {
-	switch err {
-	case transmission.ErrDuplicateTorrent:
-		log.Println("Torrent already added")
-	default:
-		log.Panic(err)
-	}
-} else {
-	log.Printf("Torrent : %#v\n", torrent)
-}
-```
+    }

@@ -44,7 +44,7 @@ type Response struct {
 	Arguments interface{} `json:"arguments"`
 }
 
-func (c *Client) Do(req *http.Request) (*http.Response, error) {
+func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
 	if c.conf.user != "" && c.conf.password != "" {
 		req.SetBasicAuth(c.conf.user, c.conf.password)
 	}
@@ -63,10 +63,10 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode == 409 {
+	if resp.StatusCode == 409 && retry {
 		c.sessionID = resp.Header.Get("X-Transmission-Session-Id")
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(b))
-		return c.Do(req)
+		return c.Do(req, false)
 	}
 	return resp, nil
 }
@@ -85,7 +85,7 @@ func (c *Client) Post(method string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	return c.Do(req)
+	return c.Do(req, true)
 }
 
 func (c *Client) GetTorrents() (*[]Torrent, error) {

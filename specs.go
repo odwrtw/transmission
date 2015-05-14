@@ -71,18 +71,21 @@ var torrentGetFields = []string{
 	"webseedsSendingToUs",
 }
 
+// File transmission API response
 type File struct {
 	BytesCompleted int
 	Length         int
 	Name           string
 }
 
+// FileStats transmission API response
 type FileStats struct {
 	BytesCompleted int
 	Wanted         bool
 	Priority       int
 }
 
+// Peers transmission API response
 type Peers struct {
 	Address            string
 	ClientName         string
@@ -102,6 +105,7 @@ type Peers struct {
 	RateToPeer         int
 }
 
+// PeersFrom transmission API response
 type PeersFrom struct {
 	FromCache    int
 	FromDht      int
@@ -112,9 +116,10 @@ type PeersFrom struct {
 	FromTracker  int
 }
 
+// Trackers from transmission API response
 type Trackers struct {
 	Announce string
-	Id       int
+	ID       int
 	Scrape   string
 	Tier     int
 }

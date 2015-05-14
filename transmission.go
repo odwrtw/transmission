@@ -7,31 +7,25 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
-	"net/url"
 )
 
-var (
-	defaultAddress = "http://localhost"
-	defaultPort    = "9091"
-	defaultPath    = "/transmission/rpc"
-	defaultScheme  = "http"
+const (
+	// DefaultAddress default transmission address
+	DefaultAddress = "http://localhost:9091/transmission/rpc"
 )
 
+// Config used to configure transmission client
 type Config struct {
-	// Address support format
-	// http://localhost:9091/transmission/rcp
-	// localhost
-	// localhost/transmission/rcp
-	// localhost:9091
-	Address      string
-	Port         string
-	User         string
-	Password     string
-	skipCheckSSL bool
+	// Address defaultt http://localhost:9091/transmission/rpc
+	Address  string
+	User     string
+	Password string
+	// SkipCheckSSL set to true if you use untrusted certificat default false
+	SkipCheckSSL bool
 }
 
+// Client transmission client
 type Client struct {
 	httpClient *http.Client
 	conf       *Config
@@ -39,12 +33,12 @@ type Client struct {
 	endpoint   string
 }
 
-type GetTorrentArg struct {
+type getTorrentArg struct {
 	Fields []string `json:"fields,omitempty"`
 	Ids    []int    `json:"ids,omitempty"`
 }
 
-type AddTorrentArg struct {
+type addTorrentArg struct {
 	// Cookies string
 	// download-dir string
 	// Filename filename or URL of the .torrent file
@@ -62,21 +56,25 @@ type AddTorrentArg struct {
 
 }
 
-type RemoveTorrentArg struct {
+type removeTorrentArg struct {
 	Ids             []int `json:"ids,string"`
 	DeleteLocalData bool  `json:"delete-local-data,omitempty"`
 }
 
+// Request object for API call
 type Request struct {
 	Method    string      `json:"method"`
 	Arguments interface{} `json:"arguments"`
 }
 
+// Response object for API cal response
 type Response struct {
 	Arguments interface{} `json:"arguments"`
 	Result    string      `json:"result"`
 }
 
+// Do low level function for interact with transmission only take care
+// of authentification and session id
 func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
 	if c.conf.User != "" && c.conf.Password != "" {
 		req.SetBasicAuth(c.conf.User, c.conf.Password)
@@ -140,9 +138,10 @@ func (c *Client) request(tReq *Request, tResp *Response) error {
 	return nil
 }
 
+// GetTorrents return list of torrent
 func (c *Client) GetTorrents() (*[]Torrent, error) {
 	tReq := &Request{
-		Arguments: GetTorrentArg{
+		Arguments: getTorrentArg{
 			Fields: torrentGetFields,
 		},
 		Method: "torrent-get",
@@ -162,9 +161,12 @@ func (c *Client) GetTorrents() (*[]Torrent, error) {
 	return &t, nil
 }
 
+// AddTorrent add torrent from filename or metadata
+// filename is an url or a path
+// metadata is base64 encoded content of torrent file
 func (c *Client) AddTorrent(filename, metadata string) (*Torrent, error) {
 	tReq := &Request{
-		Arguments: AddTorrentArg{
+		Arguments: addTorrentArg{
 			Filename: filename,
 			Metainfo: metadata,
 		},
@@ -183,13 +185,14 @@ func (c *Client) AddTorrent(filename, metadata string) (*Torrent, error) {
 	return t.Torrent, nil
 }
 
+// RemoveTorrents remove torrents
 func (c *Client) RemoveTorrents(torrents []*Torrent, removeData bool) error {
 	ids := make([]int, len(torrents))
 	for i := range torrents {
-		ids[i] = torrents[i].Id
+		ids[i] = torrents[i].ID
 	}
 	tReq := &Request{
-		Arguments: RemoveTorrentArg{
+		Arguments: removeTorrentArg{
 			Ids:             ids,
 			DeleteLocalData: removeData,
 		},
@@ -203,48 +206,17 @@ func (c *Client) RemoveTorrents(torrents []*Torrent, removeData bool) error {
 	return nil
 }
 
+// New create a new transmission client
 func New(conf Config) (*Client, error) {
 	httpClient := &http.Client{}
-	if conf.skipCheckSSL {
+	if conf.SkipCheckSSL {
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
 		httpClient = &http.Client{Transport: tr}
 	}
 	if conf.Address == "" {
-		conf.Address = defaultAddress
+		conf.Address = DefaultAddress
 	}
-	if conf.Port == "" {
-		conf.Port = defaultPort
-	}
-	u, err := url.Parse(conf.Address)
-	if err != nil {
-		return nil, err
-	}
-
-	// Support for address type "localhost"
-	if u.Host == "" && u.Path != "" {
-		u.Host = u.Path
-		u.Path = ""
-	}
-
-	// Support for addres type "locahost:9091"
-	if u.Scheme != "" && u.Opaque != "" && u.Host == "" {
-		u.Host = u.Scheme + ":" + u.Opaque
-		u.Scheme = ""
-		u.Opaque = ""
-	}
-
-	if u.Scheme == "" {
-		u.Scheme = defaultScheme
-	}
-	_, _, err = net.SplitHostPort(u.Host)
-	if err != nil {
-		//error if :port not set
-		u.Host = u.Host + ":" + conf.Port
-	}
-	if u.Path == "" {
-		u.Path = defaultPath
-	}
-	return &Client{conf: &conf, httpClient: httpClient, endpoint: u.String()}, nil
+	return &Client{conf: &conf, httpClient: httpClient, endpoint: conf.Address}, nil
 }

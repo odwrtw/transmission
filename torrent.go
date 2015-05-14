@@ -1,9 +1,11 @@
 package transmission
 
+// Torrents a lis of Torrents
 type Torrents struct {
 	Torrents *[]Torrent `json:"torrents"`
 }
 
+// Torrent represent a torrent present in transmission
 type Torrent struct {
 	Client                  *Client `json:"-"`
 	ActivityDate            int
@@ -29,7 +31,7 @@ type Torrent struct {
 	HaveUnchecked           int
 	HaveValid               int
 	HonorsSessionLimits     bool
-	Id                      int
+	ID                      int
 	IsFinished              bool
 	IsPrivate               bool
 	IsStalled               bool
@@ -82,7 +84,7 @@ func (t *Torrent) torrentAction(method string) error {
 	}
 	tReq := &Request{
 		Arguments: Arg{
-			Ids: t.Id,
+			Ids: t.ID,
 		},
 		Method: method,
 	}
@@ -96,22 +98,27 @@ func (t *Torrent) torrentAction(method string) error {
 
 }
 
+// Start torrent
 func (t *Torrent) Start() error {
 	return t.torrentAction("torrent-start")
 }
 
+// StartNow torrent
 func (t *Torrent) StartNow() error {
 	return t.torrentAction("torrent-start-now")
 }
 
+// Stop torrent
 func (t *Torrent) Stop() error {
 	return t.torrentAction("torrent-stop")
 }
 
+// Verify torrent
 func (t *Torrent) Verify() error {
 	return t.torrentAction("torrent-verify")
 }
 
+// Reannounce torrent
 func (t *Torrent) Reannounce() error {
 	return t.torrentAction("torrent-reannounce")
 }

@@ -2,42 +2,35 @@
     package main
 
     import (
-        "github.com/kr/pretty"
+            "github.com/kr/pretty"
 
-        "gitlab.quimbo.fr/odwrtw/transmission-go"
+            "gitlab.quimbo.fr/odwrtw/transmission-go"
     )
 
     func main() {
-        conf := transmission.Config{}
-        t, err := transmission.New(conf)
-        if err != nil {
-                pretty.Println(err)
-        }
+            conf := transmission.Config{}
+            t, err := transmission.New(conf)
+            if err != nil {
+                    pretty.Println(err)
+            }
 
-        pretty.Println(t)
+            pretty.Println(t)
 
-        // resp, err := t.Post("torrent-get")
-        // if err != nil {
-        // 	pretty.Println("==========")
-        // 	pretty.Println(err)
-        // 	pretty.Println("==========")
-        // }
+            torrents, err := t.GetTorrents()
+            if err != err {
+                    pretty.Println(err)
+            }
+            pretty.Println(torrents)
 
-        // body, err := ioutil.ReadAll(resp.Body)
-        // if err != nil {
-        // 	pretty.Println(err)
-        // }
+            torrent, err := t.AddTorrent("http://cdimage.debian.org/debian-cd/8.0.0/amd64/bt-dvd/debian-8.0.0-amd64-DVD-2.iso.torrent", "")
+            if err != nil {
+                    pretty.Println(err)
+            }
+            pretty.Println(torrent)
 
-        // r := transmission.Response{Arguments: &transmission.Torrents{}}
-        // err = json.Unmarshal(body, &r)
-        // if err != nil {
-        // 	pretty.Println(err)
-        // }
-        // // fmt.Println(f)
-        torrents, err := t.GetTorrents()
-        if err != err {
-                pretty.Println(err)
-        }
-        pretty.Println(torrents)
+            err = t.RemoveTorrents([]*transmission.Torrent{torrent}, true)
+            if err != nil {
+                    pretty.Println(err)
+            }
 
     }

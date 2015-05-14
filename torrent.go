@@ -100,6 +100,18 @@ func (t *Torrent) Start() error {
 	return t.torrentAction("torrent-start")
 }
 
+func (t *Torrent) StartNow() error {
+	return t.torrentAction("torrent-start-now")
+}
+
 func (t *Torrent) Stop() error {
 	return t.torrentAction("torrent-stop")
+}
+
+func (t *Torrent) Verify() error {
+	return t.torrentAction("torrent-verify")
+}
+
+func (t *Torrent) Reannounce() error {
+	return t.torrentAction("torrent-reannounce")
 }

@@ -1,5 +1,16 @@
 package transmission
 
+const (
+	// Status of torrents
+	StatusStopped         = 0
+	StatusCheckPending    = 1
+	StatusChecking        = 2
+	StatusDownloadPending = 3
+	StatusDownloading     = 4
+	StatusSeedPending     = 5
+	Statusseeding         = 6
+)
+
 // Torrents a lis of Torrents
 type Torrents struct {
 	Torrents *[]Torrent `json:"torrents"`

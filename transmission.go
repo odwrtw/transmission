@@ -38,16 +38,21 @@ type getTorrentArg struct {
 	Ids    []int    `json:"ids,omitempty"`
 }
 
-type addTorrentArg struct {
+// AddTorrentArg params for Client.AddTorrent
+type AddTorrentArg struct {
 	// Cookies string
-	// download-dir string
+	// DownloadDir path to download the torrent to
+	DownloadDir string `json:"download-dir,omitempty"`
 	// Filename filename or URL of the .torrent file
 	Filename string `json:"filename,omitempty"`
 	// Metainfo base64-encoded .torrent content
 	Metainfo string `json:"metainfo,omitempty"`
-	// Paused   bool
-	// peer-limit int
-	// BandwidthPriority int
+	// Paused if true add torrent paused default false
+	Paused bool `json:"paused,omitempty"`
+	// PeerLimit maximum number of peers
+	PeerLimit int `json:"peer-limit,omitempty"`
+	// BandwidthPriority torrent's bandwidth
+	BandwidthPriority int `json:",omitempty"`
 	// files-wanted
 	// files-unwanted
 	// priority-high
@@ -161,16 +166,20 @@ func (c *Client) GetTorrents() (*[]Torrent, error) {
 	return &t, nil
 }
 
+// Add shortcut for Client.AddTorrent
+func (c *Client) Add(filename string) (*Torrent, error) {
+	args := AddTorrentArg{
+		Filename: filename,
+	}
+	return c.AddTorrent(args)
+}
+
 // AddTorrent add torrent from filename or metadata
-// filename is an url or a path
-// metadata is base64 encoded content of torrent file
-func (c *Client) AddTorrent(filename, metadata string) (*Torrent, error) {
+// see AddTorrentArg for arguments
+func (c *Client) AddTorrent(args AddTorrentArg) (*Torrent, error) {
 	tReq := &Request{
-		Arguments: addTorrentArg{
-			Filename: filename,
-			Metainfo: metadata,
-		},
-		Method: "torrent-add",
+		Arguments: args,
+		Method:    "torrent-add",
 	}
 	type added struct {
 		Torrent *Torrent `json:"torrent-added"`

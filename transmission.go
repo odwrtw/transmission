@@ -155,8 +155,11 @@ func (c *Client) GetTorrents() (*[]Torrent, error) {
 		return nil, err
 	}
 
-	t := r.Arguments.(*Torrents).Torrents
-	return t, nil
+	t := *r.Arguments.(*Torrents).Torrents
+	for i := 0; i < len(t); i++ {
+		t[i].Client = c
+	}
+	return &t, nil
 }
 
 func (c *Client) AddTorrent(filename, metadata string) (*Torrent, error) {
@@ -176,6 +179,7 @@ func (c *Client) AddTorrent(filename, metadata string) (*Torrent, error) {
 		return nil, err
 	}
 	t := r.Arguments.(*added)
+	t.Torrent.Client = c
 	return t.Torrent, nil
 }
 

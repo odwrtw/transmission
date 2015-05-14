@@ -5,6 +5,7 @@ type Torrents struct {
 }
 
 type Torrent struct {
+	Client                  *Client `json:"-"`
 	ActivityDate            int
 	AddedDate               int
 	BandwidthPriority       int
@@ -73,4 +74,32 @@ type Torrent struct {
 	// wanted                       array
 	webseeds            interface{}
 	WebseedsSendingToUs int
+}
+
+func (t *Torrent) torrentAction(method string) error {
+	type Arg struct {
+		Ids int `json:"ids"`
+	}
+	tReq := &Request{
+		Arguments: Arg{
+			Ids: t.Id,
+		},
+		Method: method,
+	}
+
+	r := &Response{}
+	err := t.Client.request(tReq, r)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func (t *Torrent) Start() error {
+	return t.torrentAction("torrent-start")
+}
+
+func (t *Torrent) Stop() error {
+	return t.torrentAction("torrent-stop")
 }

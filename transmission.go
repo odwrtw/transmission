@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 )
@@ -14,13 +15,20 @@ import (
 var (
 	defaultAddress = "http://localhost"
 	defaultPort    = "9091"
+	defaultPath    = "/transmission/rpc"
+	defaultScheme  = "http"
 )
 
 type Config struct {
-	address      string
-	port         string
-	user         string
-	password     string
+	// Address support format
+	// http://localhost:9091/transmission/rcp
+	// localhost
+	// localhost/transmission/rcp
+	// localhost:9091
+	Address      string
+	Port         string
+	User         string
+	Password     string
 	skipCheckSSL bool
 }
 
@@ -70,8 +78,8 @@ type Response struct {
 }
 
 func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
-	if c.conf.user != "" && c.conf.password != "" {
-		req.SetBasicAuth(c.conf.user, c.conf.password)
+	if c.conf.User != "" && c.conf.Password != "" {
+		req.SetBasicAuth(c.conf.User, c.conf.Password)
 	}
 	if c.sessionID != "" {
 		req.Header.Add("X-Transmission-Session-Id", c.sessionID)
@@ -198,17 +206,40 @@ func New(conf Config) (*Client, error) {
 		}
 		httpClient = &http.Client{Transport: tr}
 	}
-	if conf.address == "" {
-		conf.address = defaultAddress
+	if conf.Address == "" {
+		conf.Address = defaultAddress
 	}
-	if conf.port == "" {
-		conf.port = defaultPort
+	if conf.Port == "" {
+		conf.Port = defaultPort
 	}
-	u, err := url.Parse(conf.address)
+	u, err := url.Parse(conf.Address)
 	if err != nil {
 		return nil, err
 	}
-	u.Host = u.Host + ":" + conf.port
-	u.Path = "/transmission/rpc"
+
+	// Support for address type "localhost"
+	if u.Host == "" && u.Path != "" {
+		u.Host = u.Path
+		u.Path = ""
+	}
+
+	// Support for addres type "locahost:9091"
+	if u.Scheme != "" && u.Opaque != "" && u.Host == "" {
+		u.Host = u.Scheme + ":" + u.Opaque
+		u.Scheme = ""
+		u.Opaque = ""
+	}
+
+	if u.Scheme == "" {
+		u.Scheme = defaultScheme
+	}
+	_, _, err = net.SplitHostPort(u.Host)
+	if err != nil {
+		//error if :port not set
+		u.Host = u.Host + ":" + conf.Port
+	}
+	if u.Path == "" {
+		u.Path = defaultPath
+	}
 	return &Client{conf: &conf, httpClient: httpClient, endpoint: u.String()}, nil
 }

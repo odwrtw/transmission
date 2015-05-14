@@ -99,7 +99,8 @@ func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode == 409 && retry {
+	// error 409
+	if resp.StatusCode == http.StatusConflict && retry {
 		c.sessionID = resp.Header.Get("X-Transmission-Session-Id")
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(b))
 		return c.Do(req, false)

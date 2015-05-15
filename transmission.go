@@ -144,7 +144,7 @@ func (c *Client) request(tReq *Request, tResp *Response) error {
 }
 
 // GetTorrents return list of torrent
-func (c *Client) GetTorrents() (*[]Torrent, error) {
+func (c *Client) GetTorrents() ([]*Torrent, error) {
 	tReq := &Request{
 		Arguments: getTorrentArg{
 			Fields: torrentGetFields,
@@ -159,11 +159,11 @@ func (c *Client) GetTorrents() (*[]Torrent, error) {
 		return nil, err
 	}
 
-	t := *r.Arguments.(*Torrents).Torrents
+	t := r.Arguments.(*Torrents).Torrents
 	for i := 0; i < len(t); i++ {
 		t[i].Client = c
 	}
-	return &t, nil
+	return t, nil
 }
 
 // Add shortcut for Client.AddTorrent

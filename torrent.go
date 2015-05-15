@@ -13,7 +13,7 @@ const (
 
 // Torrents a lis of Torrents
 type Torrents struct {
-	Torrents *[]Torrent `json:"torrents"`
+	Torrents []*Torrent `json:"torrents"`
 }
 
 // Torrent represent a torrent present in transmission
@@ -133,3 +133,27 @@ func (t *Torrent) Verify() error {
 func (t *Torrent) Reannounce() error {
 	return t.torrentAction("torrent-reannounce")
 }
+
+// Update torrent information from transmission
+// func (t *Torrent) Update() error {
+// 	type Arg struct {
+// 		Ids    int      `json:"ids"`
+// 		Fields []string `json:"fields,omitempty"`
+// 	}
+// 	tReq := &Request{
+// 		Arguments: Arg{
+// 			Ids:    t.ID,
+// 			Fields: torrentGetFields,
+// 		},
+// 		Method: "torrent-get",
+// 	}
+// 	test := []Torrent{*t}
+// 	r := &Response{Arguments: Torrents{Torrents: &test}}
+// 	err := t.Client.request(tReq, r)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	pretty.Println(r)
+// 	return nil
+// }

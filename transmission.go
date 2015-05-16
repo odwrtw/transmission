@@ -27,6 +27,7 @@ type Config struct {
 
 // Client transmission client
 type Client struct {
+	Session    *Session
 	httpClient *http.Client
 	conf       *Config
 	sessionID  string
@@ -108,6 +109,17 @@ func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(b))
 		return c.Do(req, false)
 	}
+
+	//Body copy for login response
+	b, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+
+	//Log request for debug
+	log.Print(bytes.NewBuffer(b).String())
+
 	return resp, nil
 }
 
@@ -227,5 +239,12 @@ func New(conf Config) (*Client, error) {
 	if conf.Address == "" {
 		conf.Address = DefaultAddress
 	}
-	return &Client{conf: &conf, httpClient: httpClient, endpoint: conf.Address}, nil
+	client := Client{
+		conf:       &conf,
+		httpClient: httpClient,
+		endpoint:   conf.Address,
+		Session:    &Session{},
+	}
+	client.Session.Client = &client
+	return &client, nil
 }

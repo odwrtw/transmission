@@ -285,6 +285,39 @@ func (c *Client) FreeSpace(path string) (int, error) {
 	return s.SizeBytes, nil
 }
 
+func (c *Client) QueueMoveTop(torrents []*Torrent) error {
+	return c.queueAction("queue-move-top", torrents)
+}
+func (c *Client) QueueMoveUp(torrents []*Torrent) error {
+	return c.queueAction("queue-move-up", torrents)
+}
+func (c *Client) QueueMoveDown(torrents []*Torrent) error {
+	return c.queueAction("queue-move-down", torrents)
+}
+func (c *Client) QueueMoveBottom(torrents []*Torrent) error {
+	return c.queueAction("queue-move-bottom", torrents)
+}
+
+func (c *Client) queueAction(method string, torrents []*Torrent) error {
+	ids := make([]int, len(torrents))
+	for i := range torrents {
+		ids[i] = torrents[i].ID
+	}
+	type arg struct {
+		Ids []int `json:"ids"`
+	}
+	tReq := &Request{
+		Arguments: arg{ids},
+		Method:    method,
+	}
+	r := &Response{}
+	err := c.request(tReq, r)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // New create a new transmission client
 func New(conf Config) (*Client, error) {
 	httpClient := &http.Client{}

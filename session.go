@@ -54,6 +54,26 @@ type Session struct {
 	Version    string `json:"version"`
 }
 
+// Statictics represent session statictics
+type Statictics struct {
+	ActiveTorrentCount int
+	DownloadSpeed      int
+	PausedTorrentCount int
+	TorrentCount       int
+	UploadSpeed        int
+	CumulativeStats    *StaticticDetail `json:"cumulative-stats"`
+	CurrentStats       *StaticticDetail `json:"current-stats"`
+}
+
+// StaticticDetail represent statictics details
+type StaticticDetail struct {
+	UploadedBytes   int
+	DownloadedBytes int
+	FilesAdded      int
+	SessionCount    int
+	SecondsActive   int
+}
+
 // Update session information from transmission
 func (s *Session) Update() error {
 	tReq := &Request{
@@ -66,4 +86,22 @@ func (s *Session) Update() error {
 		return err
 	}
 	return nil
+}
+
+// Stats return session statictics
+func (s *Session) Stats() (Statictics, error) {
+	tReq := &Request{
+		Method: "session-stats",
+	}
+
+	stat := Statictics{}
+
+	r := &Response{Arguments: &stat}
+
+	err := s.Client.request(tReq, r)
+	if err != nil {
+		return Statictics{}, err
+	}
+
+	return stat, nil
 }

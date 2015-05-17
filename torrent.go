@@ -134,6 +134,30 @@ func (t *Torrent) Reannounce() error {
 	return t.torrentAction("torrent-reannounce")
 }
 
+// PathRename renames a file or directory in a torrent.
+func (t *Torrent) PathRename(path string, newPath string) error {
+	type arg struct {
+		Ids  []int  `json:"ids,string"`
+		Path string `json:"path"`
+		Name string `json:"name"`
+	}
+	tReq := &Request{
+		Arguments: arg{
+			Ids:  []int{t.ID},
+			Path: path,
+			Name: newPath,
+		},
+		Method: "torrent-rename-path",
+	}
+
+	r := &Response{}
+	err := t.Client.request(tReq, r)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Update torrent information from transmission
 func (t *Torrent) Update() error {
 	type Arg struct {

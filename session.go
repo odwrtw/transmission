@@ -1,5 +1,52 @@
 package transmission
 
+// SetSessionArgs arguments for Session.Set
+type SetSessionArgs struct {
+	AltSpeedDown              int     `json:"alt-speed-down,omitempty"`
+	AltSpeedEnabled           bool    `json:"alt-speed-enabled,omitempty"`
+	AltSpeedTimeBegin         int     `json:"alt-speed-time-begin,omitempty"`
+	AltSpeedTimeEnabled       bool    `json:"alt-speed-time-enabled,omitempty"`
+	AltSpeedTimeEnd           int     `json:"alt-speed-time-end,omitempty"`
+	AltSpeedTimeDay           int     `json:"alt-speed-time-day,omitempty"`
+	AltSpeedUp                int     `json:"alt-speed-up,omitempty"`
+	BlocklistURL              string  `json:"blocklist-url,omitempty"`
+	BlocklistEnabled          bool    `json:"blocklist-enabled,omitempty"`
+	CacheSizeMb               int     `json:"cache-size-mb,omitempty"`
+	DownloadDir               string  `json:"download-dir,omitempty"`
+	DownloadQueueSize         int     `json:"download-queue-size,omitempty"`
+	DownloadQueueEnabled      bool    `json:"download-queue-enabled,omitempty"`
+	DhtEnabled                bool    `json:"dht-enabled,omitempty"`
+	Encryption                string  `json:"encryption,omitempty"`
+	IdleSeedingLimit          int     `json:"idle-seeding-limit,omitempty"`
+	IdleSeedingLimitEnabled   bool    `json:"idle-seeding-limit-enabled,omitempty"`
+	IncompleteDir             string  `json:"incomplete-dir,omitempty"`
+	IncompleteDirEnabled      bool    `json:"incomplete-dir-enabled,omitempty"`
+	LpdEnabled                bool    `json:"lpd-enabled,omitempty"`
+	PeerLimitGlobal           int     `json:"peer-limit-global,omitempty"`
+	PeerLimitPerTorrent       int     `json:"peer-limit-per-torrent,omitempty"`
+	PexEnabled                bool    `json:"pex-enabled,omitempty"`
+	PeerPort                  int     `json:"peer-port,omitempty"`
+	PeerPortRandomOnStart     bool    `json:"peer-port-random-on-start,omitempty"`
+	PortForwardingEnabled     bool    `json:"port-forwarding-enabled,omitempty"`
+	QueueStalledEnabled       bool    `json:"queue-stalled-enabled,omitempty"`
+	QueueStalledMinutes       int     `json:"queue-stalled-minutes,omitempty"`
+	RenamePartialFiles        bool    `json:"rename-partial-files,omitempty"`
+	ScriptTorrentDoneFilename string  `json:"script-torrent-done-filename,omitempty"`
+	ScriptTorrentDoneEnabled  bool    `json:"script-torrent-done-enabled,omitempty"`
+	SeedRatioLimit            float64 `json:"seedRatioLimit,omitempty"`
+	SeedRatioLimited          bool    `json:"seedRatioLimited,omitempty"`
+	SeedQueueSize             int     `json:"seed-queue-size,omitempty"`
+	SeedQueueEnabled          bool    `json:"seed-queue-enabled,omitempty"`
+	SpeedLimitDown            int     `json:"speed-limit-down,omitempty"`
+	SpeedLimitDownEnabled     bool    `json:"speed-limit-down-enabled,omitempty"`
+	SpeedLimitUp              int     `json:"speed-limit-up,omitempty"`
+	SpeedLimitUpEnabled       bool    `json:"speed-limit-up-enabled,omitempty"`
+	StartAddedTorrents        bool    `json:"start-added-torrents,omitempty"`
+	TrashOriginalTorrentFiles bool    `json:"trash-original-torrent-files,omitempty"`
+	// Units                           object `json:"units,omitempty"`
+	UtpEnabled bool `json:"utp-enabled,omitempty"`
+}
+
 // Session object contain information about transmission
 // session and interact with it
 type Session struct {
@@ -72,6 +119,20 @@ type StaticticDetail struct {
 	FilesAdded      int
 	SessionCount    int
 	SecondsActive   int
+}
+
+// Set set session params see SetSessionArgs
+func (s *Session) Set(args SetSessionArgs) error {
+	tReq := &Request{
+		Arguments: args,
+		Method:    "session-set",
+	}
+	r := &Response{}
+	err := s.Client.request(tReq, r)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Update session information from transmission

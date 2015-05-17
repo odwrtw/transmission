@@ -244,6 +244,24 @@ func (c *Client) BlocklistUpdate() (int, error) {
 	return s.BlocklistSize, nil
 }
 
+// PortTest tests to see if your incoming peer port is accessible
+// from the outside world.
+func (c *Client) PortTest() (bool, error) {
+	tReq := &Request{
+		Method: "port-test",
+	}
+	type rep struct {
+		IsOpen bool `json:"port-is-open"`
+	}
+	r := &Response{Arguments: &rep{}}
+	err := c.request(tReq, r)
+	if err != nil {
+		return false, err
+	}
+	s := r.Arguments.(*rep)
+	return s.IsOpen, nil
+}
+
 // New create a new transmission client
 func New(conf Config) (*Client, error) {
 	httpClient := &http.Client{}

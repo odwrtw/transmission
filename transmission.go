@@ -34,11 +34,6 @@ type Client struct {
 	endpoint   string
 }
 
-type getTorrentArg struct {
-	Fields []string `json:"fields,omitempty"`
-	Ids    []int    `json:"ids,omitempty"`
-}
-
 // AddTorrentArg params for Client.AddTorrent
 type AddTorrentArg struct {
 	// Cookies string
@@ -60,11 +55,6 @@ type AddTorrentArg struct {
 	// priority-low
 	// priority-normal
 
-}
-
-type removeTorrentArg struct {
-	Ids             []int `json:"ids,string"`
-	DeleteLocalData bool  `json:"delete-local-data,omitempty"`
 }
 
 // Request object for API call
@@ -157,8 +147,14 @@ func (c *Client) request(tReq *Request, tResp *Response) error {
 
 // GetTorrents return list of torrent
 func (c *Client) GetTorrents() ([]*Torrent, error) {
+
+	type arg struct {
+		Fields []string `json:"fields,omitempty"`
+		Ids    []int    `json:"ids,omitempty"`
+	}
+
 	tReq := &Request{
-		Arguments: getTorrentArg{
+		Arguments: arg{
 			Fields: torrentGetFields,
 		},
 		Method: "torrent-get",
@@ -212,8 +208,14 @@ func (c *Client) RemoveTorrents(torrents []*Torrent, removeData bool) error {
 	for i := range torrents {
 		ids[i] = torrents[i].ID
 	}
+
+	type arg struct {
+		Ids             []int `json:"ids,string"`
+		DeleteLocalData bool  `json:"delete-local-data,omitempty"`
+	}
+
 	tReq := &Request{
-		Arguments: removeTorrentArg{
+		Arguments: arg{
 			Ids:             ids,
 			DeleteLocalData: removeData,
 		},
@@ -285,15 +287,22 @@ func (c *Client) FreeSpace(path string) (int, error) {
 	return s.SizeBytes, nil
 }
 
+// QueueMoveTop moves torrents to top of the queue
 func (c *Client) QueueMoveTop(torrents []*Torrent) error {
 	return c.queueAction("queue-move-top", torrents)
 }
+
+// QueueMoveUp moves torrents up in the queue
 func (c *Client) QueueMoveUp(torrents []*Torrent) error {
 	return c.queueAction("queue-move-up", torrents)
 }
+
+// QueueMoveDown moves torrents down in the queue
 func (c *Client) QueueMoveDown(torrents []*Torrent) error {
 	return c.queueAction("queue-move-down", torrents)
 }
+
+// QueueMoveBottom moves torrents to botton of the queue
 func (c *Client) QueueMoveBottom(torrents []*Torrent) error {
 	return c.queueAction("queue-move-bottom", torrents)
 }

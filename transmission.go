@@ -262,6 +262,29 @@ func (c *Client) PortTest() (bool, error) {
 	return s.IsOpen, nil
 }
 
+// FreeSpace tests how much free space is available in a
+// client-specified folder.
+func (c *Client) FreeSpace(path string) (int, error) {
+	type arg struct {
+		Path string `json:"path"`
+	}
+	tReq := &Request{
+		Arguments: arg{path},
+		Method:    "free-space",
+	}
+	type rep struct {
+		Path      string `json:"path"`
+		SizeBytes int    `json:"size-bytes"`
+	}
+	r := &Response{Arguments: &rep{}}
+	err := c.request(tReq, r)
+	if err != nil {
+		return 0, err
+	}
+	s := r.Arguments.(*rep)
+	return s.SizeBytes, nil
+}
+
 // New create a new transmission client
 func New(conf Config) (*Client, error) {
 	httpClient := &http.Client{}

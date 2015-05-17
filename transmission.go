@@ -227,6 +227,23 @@ func (c *Client) RemoveTorrents(torrents []*Torrent, removeData bool) error {
 	return nil
 }
 
+// BlocklistUpdate update blocklist and return blocklist rules size
+func (c *Client) BlocklistUpdate() (int, error) {
+	tReq := &Request{
+		Method: "blocklist-update",
+	}
+	type update struct {
+		BlocklistSize int `json:"blocklist-size"`
+	}
+	r := &Response{Arguments: &update{}}
+	err := c.request(tReq, r)
+	if err != nil {
+		return 0, err
+	}
+	s := r.Arguments.(*update)
+	return s.BlocklistSize, nil
+}
+
 // New create a new transmission client
 func New(conf Config) (*Client, error) {
 	httpClient := &http.Client{}

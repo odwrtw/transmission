@@ -16,6 +16,32 @@ type Torrents struct {
 	Torrents []*Torrent `json:"torrents"`
 }
 
+// SetTorrentArg arguments for Torrent.Set method
+type SetTorrentArg struct {
+	BandwidthPriority int  `json:"bandwidthPriority"`
+	DownloadLimit     int  `json:"downloadLimit"`
+	DownloadLimited   bool `json:"downloadLimited"`
+	// FilesWanted         array `json:"files-wanted"`
+	// FilesUnwanted       array `json:"files-unwanted"`
+	HonorsSessionLimits bool   `json:"honorsSessionLimits"`
+	Ids                 int    `json:"ids"`
+	Location            string `json:"location"`
+	PeerLimit           int    `json:"peer-limit"`
+	// PriorityHigh        array `json:"priority-high"`
+	// PriorityLow         array `json:"priority-low"`
+	// PriorityNormal      array `json:"priority-normal"`
+	QueuePosition  int     `json:"queuePosition"`
+	SeedIdleLimit  int     `json:"seedIdleLimit"`
+	SeedIdleMode   int     `json:"seedIdleMode"`
+	SeedRatioLimit float64 `json:"seedRatioLimit"`
+	SeedRatioMode  int     `json:"seedRatioMode"`
+	// TrackerAdd           array `json:"trackerAdd"`
+	// TrackerRemove        array `json:"trackerRemove"`
+	// TrackerReplace       array `json:"trackerReplace"`
+	UploadLimit   int  `json:"uploadLimit"`
+	UploadLimited bool `json:"uploadLimited"`
+}
+
 // Torrent represent a torrent present in transmission
 type Torrent struct {
 	Client                  *Client `json:"-"`
@@ -150,6 +176,21 @@ func (t *Torrent) PathRename(path string, newPath string) error {
 		Method: "torrent-rename-path",
 	}
 
+	r := &Response{}
+	err := t.Client.request(tReq, r)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Set changes torrent param see SetTorrentArg
+func (t *Torrent) Set(arg SetTorrentArg) error {
+	arg.Ids = t.ID
+	tReq := &Request{
+		Arguments: arg,
+		Method:    "torrent-set",
+	}
 	r := &Response{}
 	err := t.Client.request(tReq, r)
 	if err != nil {

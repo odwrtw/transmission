@@ -96,7 +96,16 @@ func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// error 409
+	// Most Transmission RPC servers require a X-Transmission-Session-Id
+	// header to be sent with requests, to prevent CSRF attacks.
+	// When your request has the wrong id -- such as when you send your first
+	// request, or when the server expires the CSRF token -- the
+	// Transmission RPC server will return an HTTP 409 error with the
+	// right X-Transmission-Session-Id in its own headers.
+	// So, the correct way to handle a 409 response is to update your
+	// X-Transmission-Session-Id and to resend the previous request.
 	if resp.StatusCode == http.StatusConflict && retry {
 		c.sessionID = resp.Header.Get("X-Transmission-Session-Id")
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(b))

@@ -43,8 +43,8 @@ type SetSessionArgs struct {
 	SpeedLimitUpEnabled       bool    `json:"speed-limit-up-enabled,omitempty"`
 	StartAddedTorrents        bool    `json:"start-added-torrents,omitempty"`
 	TrashOriginalTorrentFiles bool    `json:"trash-original-torrent-files,omitempty"`
-	// Units                           object `json:"units,omitempty"`
-	UtpEnabled bool `json:"utp-enabled,omitempty"`
+	Units                     *Units  `json:"units,omitempty"`
+	UtpEnabled                bool    `json:"utp-enabled,omitempty"`
 }
 
 // Session object contain information about transmission
@@ -96,9 +96,9 @@ type Session struct {
 	SpeedLimitUpEnabled       bool    `json:"speed-limit-up-enabled"`
 	StartAddedTorrents        bool    `json:"start-added-torrents"`
 	TrashOriginalTorrentFiles bool    `json:"trash-original-torrent-files"`
-	// Units                           object `json:"units"`
-	UtpEnabled bool   `json:"utp-enabled"`
-	Version    string `json:"version"`
+	Units                     *Units  `json:"units"`
+	UtpEnabled                bool    `json:"utp-enabled"`
+	Version                   string  `json:"version"`
 }
 
 // Statictics represent session statictics
@@ -119,6 +119,16 @@ type StaticticDetail struct {
 	FilesAdded      int
 	SessionCount    int
 	SecondsActive   int
+}
+
+// Units in session
+type Units struct {
+	SpeedUnits  []string `json:"speed-units"`
+	SpeedBytes  int      `json:"speed-bytes"`
+	SizeUnits   []string `json:"size-units"`
+	SizeBytes   int      `json:"size-bytes"`
+	MemoryUnits []string `json:"memory-units"`
+	MemoryBytes int      `json:"memory-bytes"`
 }
 
 // Set set session params see SetSessionArgs
@@ -165,4 +175,18 @@ func (s *Session) Stats() (Statictics, error) {
 	}
 
 	return stat, nil
+}
+
+// Close tells the transmission session to shut down.
+func (s *Session) Close() error {
+	tReq := &Request{
+		Method: "session-close",
+	}
+	r := &Response{}
+
+	err := s.Client.request(tReq, r)
+	if err != nil {
+		return err
+	}
+	return nil
 }

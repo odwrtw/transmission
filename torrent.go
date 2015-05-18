@@ -1,14 +1,20 @@
 package transmission
 
 const (
-	// Status of torrents
-	StatusStopped         = 0
-	StatusCheckPending    = 1
-	StatusChecking        = 2
+	// StatusStopped stopped
+	StatusStopped = 0
+	// StatusCheckPending check pending
+	StatusCheckPending = 1
+	// StatusChecking checking
+	StatusChecking = 2
+	// StatusDownloadPending download pending
 	StatusDownloadPending = 3
-	StatusDownloading     = 4
-	StatusSeedPending     = 5
-	Statusseeding         = 6
+	// StatusDownloading downloading
+	StatusDownloading = 4
+	// StatusSeedPending seed pending
+	StatusSeedPending = 5
+	// Statusseeding seeding
+	Statusseeding = 6
 )
 
 var torrentGetFields = []string{
@@ -89,28 +95,28 @@ type Torrents struct {
 
 // SetTorrentArg arguments for Torrent.Set method
 type SetTorrentArg struct {
-	BandwidthPriority int  `json:"bandwidthPriority"`
-	DownloadLimit     int  `json:"downloadLimit"`
-	DownloadLimited   bool `json:"downloadLimited"`
-	// FilesWanted         array `json:"files-wanted"`
-	// FilesUnwanted       array `json:"files-unwanted"`
-	HonorsSessionLimits bool   `json:"honorsSessionLimits"`
-	Ids                 int    `json:"ids"`
-	Location            string `json:"location"`
-	PeerLimit           int    `json:"peer-limit"`
-	// PriorityHigh        array `json:"priority-high"`
-	// PriorityLow         array `json:"priority-low"`
-	// PriorityNormal      array `json:"priority-normal"`
-	QueuePosition  int     `json:"queuePosition"`
-	SeedIdleLimit  int     `json:"seedIdleLimit"`
-	SeedIdleMode   int     `json:"seedIdleMode"`
-	SeedRatioLimit float64 `json:"seedRatioLimit"`
-	SeedRatioMode  int     `json:"seedRatioMode"`
-	// TrackerAdd           array `json:"trackerAdd"`
-	// TrackerRemove        array `json:"trackerRemove"`
-	// TrackerReplace       array `json:"trackerReplace"`
-	UploadLimit   int  `json:"uploadLimit"`
-	UploadLimited bool `json:"uploadLimited"`
+	BandwidthPriority   int      `json:"bandwidthPriority,omitempty"`
+	DownloadLimit       int      `json:"downloadLimit,omitempty"`
+	DownloadLimited     bool     `json:"downloadLimited,omitempty"`
+	FilesWanted         []int    `json:"files-wanted,omitempty"`
+	FilesUnwanted       []int    `json:"files-unwanted,omitempty"`
+	HonorsSessionLimits bool     `json:"honorsSessionLimits,omitempty"`
+	Ids                 int      `json:"ids"`
+	Location            string   `json:"location,omitempty"`
+	PeerLimit           int      `json:"peer-limit,omitempty"`
+	PriorityHigh        []int    `json:"priority-high,omitempty"`
+	PriorityLow         []int    `json:"priority-low,omitempty"`
+	PriorityNormal      []int    `json:"priority-normal,omitempty"`
+	QueuePosition       int      `json:"queuePosition,omitempty"`
+	SeedIdleLimit       int      `json:"seedIdleLimit,omitempty"`
+	SeedIdleMode        int      `json:"seedIdleMode,omitempty"`
+	SeedRatioLimit      float64  `json:"seedRatioLimit,omitempty"`
+	SeedRatioMode       int      `json:"seedRatioMode,omitempty"`
+	TrackerAdd          []string `json:"trackerAdd,omitempty"`
+	TrackerRemove       []int    `json:"trackerRemove,omitempty"`
+	// TrackerReplace       `json:"trackerReplace,omitempty"`
+	UploadLimit   int  `json:"uploadLimit,omitempty"`
+	UploadLimited bool `json:"uploadLimited,omitempty"`
 }
 
 // Torrent represent a torrent present in transmission
@@ -328,6 +334,32 @@ func (t *Torrent) PathRename(path string, newPath string) error {
 			Name: newPath,
 		},
 		Method: "torrent-rename-path",
+	}
+
+	r := &Response{}
+	err := t.Client.request(tReq, r)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// SetLocation moves a Torrent
+// move if true, move from previous location.
+// otherwise, search "location" for files
+func (t *Torrent) SetLocation(path string, move bool) error {
+	type arg struct {
+		Ids      []int  `json:"ids,string"`
+		Location string `json:"location"`
+		Move     bool   `json:"move,omitempty"`
+	}
+	tReq := &Request{
+		Arguments: arg{
+			Ids:      []int{t.ID},
+			Location: path,
+			Move:     move,
+		},
+		Method: "torrent-set-location",
 	}
 
 	r := &Response{}

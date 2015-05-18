@@ -36,7 +36,11 @@ type Client struct {
 
 // AddTorrentArg params for Client.AddTorrent
 type AddTorrentArg struct {
-	// Cookies string
+	//The format of the "cookies" should be NAME=CONTENTS, where NAME is the
+	// cookie name and CONTENTS is what the cookie should contain.
+	// Set multiple cookies like this: "name1=content1; name2=content2;" etc.
+	// <http://curl.haxx.se/libcurl/c/curl_easy_setopt.html#CURLOPTCOOKIE>
+	Cookies string `json:"cookies,omitempty"`
 	// DownloadDir path to download the torrent to
 	DownloadDir string `json:"download-dir,omitempty"`
 	// Filename filename or URL of the .torrent file
@@ -48,13 +52,12 @@ type AddTorrentArg struct {
 	// PeerLimit maximum number of peers
 	PeerLimit int `json:"peer-limit,omitempty"`
 	// BandwidthPriority torrent's bandwidth
-	BandwidthPriority int `json:",omitempty"`
-	// files-wanted
-	// files-unwanted
-	// priority-high
-	// priority-low
-	// priority-normal
-
+	BandwidthPriority int   `json:",omitempty"`
+	FilesWanted       []int `json:"files-wanted,omitempty"`
+	FilesUnwanted     []int `json:"files-unwanted,omitempty"`
+	PriorityHigh      []int `json:"priority-high,omitempty"`
+	PriorityLow       []int `json:"priority-low,omitempty"`
+	PriorityNormal    []int `json:"priority-normal,omitempty"`
 }
 
 // Request object for API call
@@ -166,7 +169,6 @@ func (c *Client) GetTorrents() ([]*Torrent, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	t := r.Arguments.(*Torrents).Torrents
 	for i := 0; i < len(t); i++ {
 		t[i].Client = c

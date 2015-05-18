@@ -11,6 +11,77 @@ const (
 	Statusseeding         = 6
 )
 
+var torrentGetFields = []string{
+	"activityDate",
+	"addedDate",
+	"bandwidthPriority",
+	"comment",
+	"corruptEver",
+	"creator",
+	"dateCreated",
+	"desiredAvailable",
+	"doneDate",
+	"downloadDir",
+	"downloadedEver",
+	"downloadLimit",
+	"downloadLimited",
+	"error",
+	"errorString",
+	"eta",
+	"etaIdle",
+	"files",
+	"fileStats",
+	"hashString",
+	"haveUnchecked",
+	"haveValid",
+	"honorsSessionLimits",
+	"id",
+	"isFinished",
+	"isPrivate",
+	"isStalled",
+	"leftUntilDone",
+	"magnetLink",
+	"manualAnnounceTime",
+	"maxConnectedPeers",
+	"metadataPercentComplete",
+	"name",
+	"peer",
+	"peers",
+	"peersConnected",
+	"peersFrom",
+	"peersGettingFromUs",
+	"peersSendingToUs",
+	"percentDone",
+	"pieces",
+	"pieceCount",
+	"pieceSize",
+	"priorities",
+	"queuePosition",
+	"rateDownload",
+	"rateUpload",
+	"recheckProgress",
+	"secondsDownloading",
+	"secondsSeeding",
+	"seedIdleLimit",
+	"seedIdleMode",
+	"seedRatioLimit",
+	"seedRatioMode",
+	"sizeWhenDone",
+	"startDate",
+	"status",
+	"trackers",
+	"trackerStats",
+	"totalSize",
+	"torrentFile",
+	"uploadedEver",
+	"uploadLimit",
+	"uploadLimited",
+	"uploadRatio",
+	"wanted",
+	"webseeds",
+	"webseedsSendingToUs",
+}
+
 // Torrents a lis of Torrents
 type Torrents struct {
 	Torrents []*Torrent `json:"torrents"`
@@ -88,31 +159,114 @@ type Torrent struct {
 	Pieces                  string
 	PieceCount              int
 	PieceSize               int
-	// Priorities         *[]Priorities
-	QueuePosition      int
-	RateDownload       int
-	RateUpload         int
-	RecheckProgress    float64
-	SecondsDownloading int
-	SecondsSeeding     int
-	SeedIdleLimit      int
-	SeedIdleMode       int
-	SeedRatioLimit     float64
-	SeedRatioMode      int
-	SizeWhenDone       int
-	StartDate          int
-	Status             int
-	Trackers           *[]Trackers
-	// TrackerStats  *[]TrackerStats
-	TotalSize     int
-	TorrentFile   string
-	UploadedEver  int
-	UploadLimit   int
-	UploadLimited bool
-	UploadRatio   float64
-	// wanted                       array
-	webseeds            interface{}
-	WebseedsSendingToUs int
+	Priorities              []int
+	QueuePosition           int
+	RateDownload            int
+	RateUpload              int
+	RecheckProgress         float64
+	SecondsDownloading      int
+	SecondsSeeding          int
+	SeedIdleLimit           int
+	SeedIdleMode            int
+	SeedRatioLimit          float64
+	SeedRatioMode           int
+	SizeWhenDone            int
+	StartDate               int
+	Status                  int
+	Trackers                *[]Trackers
+	TrackerStats            *[]TrackerStats
+	TotalSize               int
+	TorrentFile             string
+	UploadedEver            int
+	UploadLimit             int
+	UploadLimited           bool
+	UploadRatio             float64
+	Wanted                  []int
+	Webseeds                []string
+	WebseedsSendingToUs     int
+}
+
+// File transmission API response
+type File struct {
+	BytesCompleted int
+	Length         int
+	Name           string
+}
+
+// FileStats transmission API response
+type FileStats struct {
+	BytesCompleted int
+	Wanted         bool
+	Priority       int
+}
+
+// Peers transmission API response
+type Peers struct {
+	Address            string
+	ClientName         string
+	ClientIsChoked     bool
+	ClientIsInterested bool
+	FlagStr            string
+	IsDownloadingFrom  bool
+	IsEncrypted        bool
+	IsIncoming         bool
+	IsUploadingTo      bool
+	IsUTP              bool
+	PeerIsChoked       bool
+	PeerIsInterested   bool
+	Port               int
+	Progress           float64
+	RateToClient       int
+	RateToPeer         int
+}
+
+// PeersFrom transmission API response
+type PeersFrom struct {
+	FromCache    int
+	FromDht      int
+	FromIncoming int
+	FromLpd      int
+	FromLtep     int
+	FromPex      int
+	FromTracker  int
+}
+
+// TrackerStats transmission API response
+type TrackerStats struct {
+	Announce              string
+	AnnounceState         int
+	DownloadCount         int
+	HasAnnounced          bool
+	HasScraped            bool
+	Host                  string
+	ID                    int
+	IsBackup              bool
+	LastAnnouncePeerCount int
+	LastAnnounceResult    string
+	LastAnnounceStartTime int
+	LastAnnounceSucceeded bool
+	LastAnnounceTime      int
+	LastAnnounceTimedOut  bool
+	LastScrapeResult      string
+	LastScrapeStartTime   int
+	LastScrapeSucceeded   bool
+	LastScrapeTime        int
+	LastScrapeTimedOut    int
+	LeecherCount          int
+	NextAnnounceTime      int
+	NextScrapeTim         int
+	Scrap                 string
+	ScrapeState           int
+	SeederCount           int
+	Tier                  int
+}
+
+// Trackers from transmission API response
+type Trackers struct {
+	Announce string
+	ID       int
+	Scrape   string
+	Tier     int
 }
 
 func (t *Torrent) torrentAction(method string) error {

@@ -15,6 +15,12 @@ const (
 	DefaultAddress = "http://localhost:9091/transmission/rpc"
 )
 
+type nullWriter struct{}
+
+func (w *nullWriter) Write(p []byte) (int, error) {
+	return len(p), nil
+}
+
 // Config used to configure transmission client
 type Config struct {
 	// Address defaultt http://localhost:9091/transmission/rpc
@@ -23,6 +29,8 @@ type Config struct {
 	Password string
 	// SkipCheckSSL set to true if you use untrusted certificat default false
 	SkipCheckSSL bool
+	// Logger defaut logger doesn't log anything
+	Logger *log.Logger
 }
 
 // Client transmission client
@@ -32,6 +40,7 @@ type Client struct {
 	conf       *Config
 	sessionID  string
 	endpoint   string
+	logger     *log.Logger
 }
 
 // AddTorrentArg params for Client.AddTorrent
@@ -87,10 +96,11 @@ func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	req.Body.Close()
 	req.Body = ioutil.NopCloser(bytes.NewBuffer(b))
 
 	//Log request for debug
-	log.Print(bytes.NewBuffer(b).String())
+	c.logger.Print(bytes.NewBuffer(b).String())
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -117,10 +127,11 @@ func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	resp.Body.Close()
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
 
 	//Log request for debug
-	log.Print(bytes.NewBuffer(b).String())
+	c.logger.Print(bytes.NewBuffer(b).String())
 
 	return resp, nil
 }
@@ -350,11 +361,15 @@ func New(conf Config) (*Client, error) {
 	if conf.Address == "" {
 		conf.Address = DefaultAddress
 	}
+	if conf.Logger == nil {
+		conf.Logger = log.New(&nullWriter{}, "", log.LstdFlags)
+	}
 	client := Client{
 		conf:       &conf,
 		httpClient: httpClient,
 		endpoint:   conf.Address,
 		Session:    &Session{},
+		logger:     conf.Logger,
 	}
 	client.Session.Client = &client
 	return &client, nil

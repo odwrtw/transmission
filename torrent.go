@@ -13,8 +13,8 @@ const (
 	StatusDownloading = 4
 	// StatusSeedPending seed pending
 	StatusSeedPending = 5
-	// Statusseeding seeding
-	Statusseeding = 6
+	// StatusSeeding seeding
+	StatusSeeding = 6
 )
 
 var torrentGetFields = []string{
@@ -88,7 +88,7 @@ var torrentGetFields = []string{
 	"webseedsSendingToUs",
 }
 
-// Torrents a lis of Torrents
+// Torrents a list of Torrents
 type Torrents struct {
 	Torrents []*Torrent `json:"torrents"`
 }

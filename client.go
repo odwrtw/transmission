@@ -19,11 +19,9 @@ type Config struct {
 
 // Client transmission client
 type Client struct {
-	Session    *Session
-	httpClient *http.Client
-	conf       *Config
-	sessionID  string
-	endpoint   string
+	Session   *Session
+	sessionID string
+	*Config
 }
 
 // AddTorrentArg params for Client.AddTorrent
@@ -67,8 +65,8 @@ type Response struct {
 // Do low level function for interact with transmission only take care of
 // authentification and session id
 func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
-	if c.conf.User != "" && c.conf.Password != "" {
-		req.SetBasicAuth(c.conf.User, c.conf.Password)
+	if c.User != "" && c.Password != "" {
+		req.SetBasicAuth(c.User, c.Password)
 	}
 	if c.sessionID != "" {
 		req.Header.Add("X-Transmission-Session-Id", c.sessionID)
@@ -82,7 +80,7 @@ func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
 	req.Body.Close()
 	req.Body = ioutil.NopCloser(bytes.NewBuffer(b))
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +108,7 @@ func (c *Client) request(tReq *Request, tResp *Response) error {
 		return err
 	}
 
-	req, err := http.NewRequest("POST", c.endpoint, bytes.NewReader(data))
+	req, err := http.NewRequest("POST", c.Address, bytes.NewReader(data))
 	if err != nil {
 		return err
 	}
@@ -322,10 +320,8 @@ func New(conf Config) (*Client, error) {
 		conf.HTTPClient = &http.Client{}
 	}
 	client := Client{
-		conf:       &conf,
-		httpClient: conf.HTTPClient,
-		endpoint:   conf.Address,
-		Session:    &Session{},
+		Session: &Session{},
+		Config:  &conf,
 	}
 	client.Session.Client = &client
 	return &client, nil

@@ -3,9 +3,15 @@ package transmission
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+)
+
+var (
+	// ErrDuplicateTorrent returned when the torrent is already added
+	ErrDuplicateTorrent = errors.New("Torrent already added")
 )
 
 // Config used to configure transmission client
@@ -176,6 +182,11 @@ func (c *Client) AddTorrent(args AddTorrentArg) (*Torrent, error) {
 		Arguments: args,
 		Method:    "torrent-add",
 	}
+	// TODO: When there is an error like that, the name of the error is in the
+	// name of the key of the JSON
+	// Here we only get the torrent-added response, but in other cases the
+	// response could be for example torrent-duplicate
+	// Need to unmarshal with json.RawMessage
 	type added struct {
 		Torrent *Torrent `json:"torrent-added"`
 	}
@@ -185,6 +196,13 @@ func (c *Client) AddTorrent(args AddTorrentArg) (*Torrent, error) {
 		return nil, err
 	}
 	t := r.Arguments.(*added)
+
+	// If it's a success but we didn't add any torrent, it's because the
+	// torrent is already added
+	if t.Torrent == nil {
+		return nil, ErrDuplicateTorrent
+	}
+
 	t.Torrent.Client = c
 	return t.Torrent, nil
 }

@@ -1,74 +1,75 @@
 Transmission JSON RPC API library
 =================================
 
-Implement all available methode, for details see
-https://trac.transmissionbt.com/browser/trunk/extras/rpc-spec.txt?rev=14463
+Implement all available methode, for details see the [documentation](https://trac.transmissionbt.com/browser/trunk/extras/rpc-spec.txt?rev=14463).
 
 
-Usage
------
+## Usage
 
-    package main
 
-    import (
-            "crypto/tls"
-            "net/http"
+```go
+package main
 
-            "github.com/kr/pretty"
+import (
+        "crypto/tls"
+        "net/http"
 
-            "gitlab.quimbo.fr/odwrtw/transmission-go"
-    )
+        "github.com/kr/pretty"
 
-    func main() {
-            // Simple client
-            conf := transmission.Config{
-                    Address: "http://localhost:9091/transmission/rpc",
-            }
-            t, err := transmission.New(conf)
-            if err != nil {
-                    pretty.Println(err)
-            }
+        "github.com/odwrtw/transmission"
+)
 
-            // With untrusted SSL
-            tr := &http.Transport{
-                    TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-            }
-            httpClient := http.Client{Transport: tr}
+func main() {
+        // Simple client
+        conf := transmission.Config{
+                Address: "http://localhost:9091/transmission/rpc",
+        }
+        t, err := transmission.New(conf)
+        if err != nil {
+                pretty.Println(err)
+        }
 
-            conf = transmission.Config{
-                    Address:    "http://localhost:9091/transmission/rpc",
-                    HTTPClient: &httpClient,
-            }
-            t, err = transmission.New(conf)
-            if err != nil {
-                    pretty.Println(err)
-            }
+        // With untrusted SSL
+        tr := &http.Transport{
+                TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+        }
+        httpClient := http.Client{Transport: tr}
 
-            // Get all torrents
-            torrents, err := t.GetTorrents()
-            if err != err {
-                    pretty.Println(err)
-            }
-            pretty.Println(torrents)
+        conf = transmission.Config{
+                Address:    "http://localhost:9091/transmission/rpc",
+                HTTPClient: &httpClient,
+        }
+        t, err = transmission.New(conf)
+        if err != nil {
+                pretty.Println(err)
+        }
 
-            // Add a torrent
-            torrent, err := t.Add("http://cdimage.debian.org/debian-cd/8.0.0/amd64/bt-dvd/debian-8.0.0-amd64-DVD-2.iso.torrent")
-            if err != nil {
-                    pretty.Println(err)
-            }
+        // Get all torrents
+        torrents, err := t.GetTorrents()
+        if err != err {
+                pretty.Println(err)
+        }
+        pretty.Println(torrents)
 
-            // Update is information
-            torrent.Update()
-            pretty.Println(torrent)
+        // Add a torrent
+        torrent, err := t.Add("http://cdimage.debian.org/debian-cd/8.1.0/amd64/bt-cd/debian-8.1.0-amd64-CD-1.iso.torrent")
+        if err != nil {
+                pretty.Println(err)
+        }
 
-            // Remove it
-            err = t.RemoveTorrents([]*transmission.Torrent{torrent}, true)
-            if err != nil {
-                    pretty.Println(err)
-            }
+        // Update is information
+        torrent.Update()
+        pretty.Println(torrent)
 
-            // Get session informations
-            t.Session.Update()
-            pretty.Println(t.Session)
+        // Remove it
+        err = t.RemoveTorrents([]*transmission.Torrent{torrent}, true)
+        if err != nil {
+                pretty.Println(err)
+        }
 
-    }
+        // Get session informations
+        t.Session.Update()
+        pretty.Println(t.Session)
+
+}
+```

@@ -123,6 +123,7 @@ func (c *Client) request(tReq *Request, tResp *Response) error {
 	if err != nil {
 		return err
 	}
+	defer req.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

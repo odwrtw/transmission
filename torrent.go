@@ -93,6 +93,9 @@ type Torrents struct {
 	Torrents []*Torrent `json:"torrents"`
 }
 
+// TorrentMap is a map of Torrents indexed by torrent hash.
+type TorrentMap map[string]*Torrent
+
 // SetTorrentArg arguments for Torrent.Set method
 type SetTorrentArg struct {
 	BandwidthPriority   int      `json:"bandwidthPriority,omitempty"`

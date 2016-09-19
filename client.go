@@ -168,6 +168,22 @@ func (c *Client) GetTorrents() ([]*Torrent, error) {
 	return t, nil
 }
 
+// GetTorrentMap returns a map of torrents indexed by torrent hash.
+func (c *Client) GetTorrentMap() (TorrentMap, error) {
+	torrents, err := c.GetTorrents()
+	if err != nil {
+		return nil, err
+	}
+
+	tm := make(TorrentMap)
+
+	for _, t := range torrents {
+		tm[t.HashString] = t
+	}
+
+	return tm, nil
+}
+
 // Add shortcut for Client.AddTorrent
 func (c *Client) Add(filename string) (*Torrent, error) {
 	args := AddTorrentArg{

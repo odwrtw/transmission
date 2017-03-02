@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 )
@@ -100,7 +101,15 @@ func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
 	// your X-Transmission-Session-Id and to resend the previous request.
 	if resp.StatusCode == http.StatusConflict && retry {
 		c.sessionID = resp.Header.Get("X-Transmission-Session-Id")
+
+		// Copy the previous request body in order to do it again
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+
+		// We also need to read the body before closing it, or it will trigger
+		// a "net/http: request cancelled" error
+		io.Copy(ioutil.Discard, resp.Body)
+		resp.Body.Close()
+
 		return c.Do(req, false)
 	}
 

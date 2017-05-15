@@ -76,6 +76,12 @@ func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
 		req.SetBasicAuth(c.User, c.Password)
 	}
 	if c.sessionID != "" {
+		// Delete the previous session in header in case there was one
+
+		// We need to do this because the previous header won't be overridden
+		// by the "Add", we need to manually delete the previous header or the
+		// request will fail
+		req.Header.Del("X-Transmission-Session-Id")
 		req.Header.Add("X-Transmission-Session-Id", c.sessionID)
 	}
 

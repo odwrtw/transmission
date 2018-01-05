@@ -240,7 +240,7 @@ func (c *Client) AddTorrent(args AddTorrentArg) (*Torrent, error) {
 }
 
 // RemoveTorrents remove torrents
-func (c *Client) RemoveTorrents(torrents []*Torrent, removeData bool) error {
+func (c *Client) RemoveTorrents(removeData bool, torrents ...*Torrent) error {
 	ids := make([]int, len(torrents))
 	for i := range torrents {
 		ids[i] = torrents[i].ID
@@ -325,26 +325,26 @@ func (c *Client) FreeSpace(path string) (int, error) {
 }
 
 // QueueMoveTop moves torrents to top of the queue
-func (c *Client) QueueMoveTop(torrents []*Torrent) error {
+func (c *Client) QueueMoveTop(torrents ...*Torrent) error {
 	return c.queueAction("queue-move-top", torrents)
 }
 
 // QueueMoveUp moves torrents up in the queue
-func (c *Client) QueueMoveUp(torrents []*Torrent) error {
+func (c *Client) QueueMoveUp(torrents ...*Torrent) error {
 	return c.queueAction("queue-move-up", torrents)
 }
 
 // QueueMoveDown moves torrents down in the queue
-func (c *Client) QueueMoveDown(torrents []*Torrent) error {
+func (c *Client) QueueMoveDown(torrents ...*Torrent) error {
 	return c.queueAction("queue-move-down", torrents)
 }
 
 // QueueMoveBottom moves torrents to botton of the queue
-func (c *Client) QueueMoveBottom(torrents []*Torrent) error {
+func (c *Client) QueueMoveBottom(torrents ...*Torrent) error {
 	return c.queueAction("queue-move-bottom", torrents)
 }
 
-func (c *Client) queueAction(method string, torrents []*Torrent) error {
+func (c *Client) queueAction(method string, torrents ...*Torrent) error {
 	ids := make([]int, len(torrents))
 	for i := range torrents {
 		ids[i] = torrents[i].ID

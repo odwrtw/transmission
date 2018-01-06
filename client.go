@@ -344,7 +344,7 @@ func (c *Client) QueueMoveBottom(torrents ...*Torrent) error {
 	return c.queueAction("queue-move-bottom", torrents)
 }
 
-func (c *Client) queueAction(method string, torrents ...*Torrent) error {
+func (c *Client) queueAction(method string, torrents []*Torrent) error {
 	ids := make([]int, len(torrents))
 	for i := range torrents {
 		ids[i] = torrents[i].ID

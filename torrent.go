@@ -125,74 +125,74 @@ type SetTorrentArg struct {
 // Torrent represent a torrent present in transmission
 type Torrent struct {
 	Client                  *Client `json:"-"`
-	ActivityDate            int
-	AddedDate               int
-	BandwidthPriority       int
+	ActivityDate            int64
+	AddedDate               int64
+	BandwidthPriority       int64
 	Comment                 string
-	CorruptEver             int
+	CorruptEver             int64
 	Creator                 string
-	DateCreated             int
-	DesiredAvailable        int
-	DoneDate                int
+	DateCreated             int64
+	DesiredAvailable        int64
+	DoneDate                int64
 	DownloadDir             string
-	DownloadedEver          int
-	DownloadLimit           int
+	DownloadedEver          int64
+	DownloadLimit           int64
 	DownloadLimited         bool
-	Error                   int
+	Error                   int64
 	ErrorString             string
-	Eta                     int
-	EtaIdle                 int
+	Eta                     int64
+	EtaIdle                 int64
 	Files                   *[]File
 	FileStats               *[]FileStats
 	HashString              string
-	HaveUnchecked           int
-	HaveValid               int
+	HaveUnchecked           int64
+	HaveValid               int64
 	HonorsSessionLimits     bool
-	ID                      int
+	ID                      int64
 	IsFinished              bool
 	IsPrivate               bool
 	IsStalled               bool
-	LeftUntilDone           int
+	LeftUntilDone           int64
 	MagnetLink              string
-	ManualAnnounceTime      int
-	MaxConnectedPeers       int
+	ManualAnnounceTime      int64
+	MaxConnectedPeers       int64
 	MetadataPercentComplete float64
 	Name                    string
-	Peerlimit               int
+	Peerlimit               int64
 	Peers                   *[]Peers
-	PeersConnected          int
+	PeersConnected          int64
 	PeersFrom               PeersFrom
-	PeersGettingFromUs      int
-	PeersSendingToUs        int
+	PeersGettingFromUs      int64
+	PeersSendingToUs        int64
 	PercentDone             float64
 	Pieces                  string
-	PieceCount              int
-	PieceSize               int
-	Priorities              []int
-	QueuePosition           int
-	RateDownload            int
-	RateUpload              int
+	PieceCount              int64
+	PieceSize               int64
+	Priorities              []int64
+	QueuePosition           int64
+	RateDownload            int64
+	RateUpload              int64
 	RecheckProgress         float64
-	SecondsDownloading      int
-	SecondsSeeding          int
-	SeedIdleLimit           int
-	SeedIdleMode            int
+	SecondsDownloading      int64
+	SecondsSeeding          int64
+	SeedIdleLimit           int64
+	SeedIdleMode            int64
 	SeedRatioLimit          float64
-	SeedRatioMode           int
-	SizeWhenDone            int
-	StartDate               int
-	Status                  int
+	SeedRatioMode           int64
+	SizeWhenDone            int64
+	StartDate               int64
+	Status                  int64
 	Trackers                *[]Trackers
 	TrackerStats            *[]TrackerStats
-	TotalSize               int
+	TotalSize               int64
 	TorrentFile             string
-	UploadedEver            int
-	UploadLimit             int
+	UploadedEver            int64
+	UploadLimit             int64
 	UploadLimited           bool
 	UploadRatio             float64
-	Wanted                  []int
+	Wanted                  []int64
 	Webseeds                []string
-	WebseedsSendingToUs     int
+	WebseedsSendingToUs     int64
 }
 
 // File transmission API response

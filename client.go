@@ -47,14 +47,14 @@ type AddTorrentArg struct {
 	// Paused if true add torrent paused default false
 	Paused bool `json:"paused,omitempty"`
 	// PeerLimit maximum number of peers
-	PeerLimit int `json:"peer-limit,omitempty"`
+	PeerLimit int64 `json:"peer-limit,omitempty"`
 	// BandwidthPriority torrent's bandwidth
-	BandwidthPriority int   `json:",omitempty"`
-	FilesWanted       []int `json:"files-wanted,omitempty"`
-	FilesUnwanted     []int `json:"files-unwanted,omitempty"`
-	PriorityHigh      []int `json:"priority-high,omitempty"`
-	PriorityLow       []int `json:"priority-low,omitempty"`
-	PriorityNormal    []int `json:"priority-normal,omitempty"`
+	BandwidthPriority int64   `json:",omitempty"`
+	FilesWanted       []int64 `json:"files-wanted,omitempty"`
+	FilesUnwanted     []int64 `json:"files-unwanted,omitempty"`
+	PriorityHigh      []int64 `json:"priority-high,omitempty"`
+	PriorityLow       []int64 `json:"priority-low,omitempty"`
+	PriorityNormal    []int64 `json:"priority-normal,omitempty"`
 }
 
 // Request object for API call
@@ -160,7 +160,7 @@ func (c *Client) request(tReq *Request, tResp *Response) error {
 func (c *Client) GetTorrents() ([]*Torrent, error) {
 	type arg struct {
 		Fields []string `json:"fields,omitempty"`
-		Ids    []int    `json:"ids,omitempty"`
+		Ids    []int64    `json:"ids,omitempty"`
 	}
 
 	tReq := &Request{
@@ -241,13 +241,13 @@ func (c *Client) AddTorrent(args AddTorrentArg) (*Torrent, error) {
 
 // RemoveTorrents remove torrents
 func (c *Client) RemoveTorrents(removeData bool, torrents ...*Torrent) error {
-	ids := make([]int, len(torrents))
+	ids := make([]int64, len(torrents))
 	for i := range torrents {
 		ids[i] = torrents[i].ID
 	}
 
 	type arg struct {
-		Ids             []int `json:"ids,string"`
+		Ids             []int64 `json:"ids,string"`
 		DeleteLocalData bool  `json:"delete-local-data,omitempty"`
 	}
 
@@ -267,12 +267,12 @@ func (c *Client) RemoveTorrents(removeData bool, torrents ...*Torrent) error {
 }
 
 // BlocklistUpdate update blocklist and return blocklist rules size
-func (c *Client) BlocklistUpdate() (int, error) {
+func (c *Client) BlocklistUpdate() (int64, error) {
 	tReq := &Request{
 		Method: "blocklist-update",
 	}
 	type update struct {
-		BlocklistSize int `json:"blocklist-size"`
+		BlocklistSize int64 `json:"blocklist-size"`
 	}
 	r := &Response{Arguments: &update{}}
 	err := c.request(tReq, r)
@@ -303,7 +303,7 @@ func (c *Client) PortTest() (bool, error) {
 
 // FreeSpace tests how much free space is available in a client-specified
 // folder.
-func (c *Client) FreeSpace(path string) (int, error) {
+func (c *Client) FreeSpace(path string) (int64, error) {
 	type arg struct {
 		Path string `json:"path"`
 	}
@@ -313,7 +313,7 @@ func (c *Client) FreeSpace(path string) (int, error) {
 	}
 	type rep struct {
 		Path      string `json:"path"`
-		SizeBytes int    `json:"size-bytes"`
+		SizeBytes int64    `json:"size-bytes"`
 	}
 	r := &Response{Arguments: &rep{}}
 	err := c.request(tReq, r)
@@ -345,12 +345,12 @@ func (c *Client) QueueMoveBottom(torrents ...*Torrent) error {
 }
 
 func (c *Client) queueAction(method string, torrents []*Torrent) error {
-	ids := make([]int, len(torrents))
+	ids := make([]int64, len(torrents))
 	for i := range torrents {
 		ids[i] = torrents[i].ID
 	}
 	type arg struct {
-		Ids []int `json:"ids"`
+		Ids []int64 `json:"ids"`
 	}
 	tReq := &Request{
 		Arguments: arg{ids},

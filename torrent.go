@@ -129,13 +129,13 @@ type Torrent struct {
 	AddedDate               int
 	BandwidthPriority       int
 	Comment                 string
-	CorruptEver             int
+	CorruptEver             int64
 	Creator                 string
 	DateCreated             int
-	DesiredAvailable        int
+	DesiredAvailable        int64
 	DoneDate                int
 	DownloadDir             string
-	DownloadedEver          int
+	DownloadedEver          int64
 	DownloadLimit           int
 	DownloadLimited         bool
 	Error                   int
@@ -145,14 +145,14 @@ type Torrent struct {
 	Files                   *[]File
 	FileStats               *[]FileStats
 	HashString              string
-	HaveUnchecked           int
-	HaveValid               int
+	HaveUnchecked           int64
+	HaveValid               int64
 	HonorsSessionLimits     bool
 	ID                      int
 	IsFinished              bool
 	IsPrivate               bool
 	IsStalled               bool
-	LeftUntilDone           int
+	LeftUntilDone           int64
 	MagnetLink              string
 	ManualAnnounceTime      int
 	MaxConnectedPeers       int
@@ -179,14 +179,14 @@ type Torrent struct {
 	SeedIdleMode            int
 	SeedRatioLimit          float64
 	SeedRatioMode           int
-	SizeWhenDone            int
+	SizeWhenDone            int64
 	StartDate               int
 	Status                  int
 	Trackers                *[]Trackers
 	TrackerStats            *[]TrackerStats
-	TotalSize               int
+	TotalSize               int64
 	TorrentFile             string
-	UploadedEver            int
+	UploadedEver            int64
 	UploadLimit             int
 	UploadLimited           bool
 	UploadRatio             float64
@@ -197,14 +197,14 @@ type Torrent struct {
 
 // File transmission API response
 type File struct {
-	BytesCompleted int
-	Length         int
+	BytesCompleted int64
+	Length         int64
 	Name           string
 }
 
 // FileStats transmission API response
 type FileStats struct {
-	BytesCompleted int
+	BytesCompleted int64
 	Wanted         bool
 	Priority       int
 }

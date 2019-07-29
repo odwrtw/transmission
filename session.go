@@ -114,11 +114,11 @@ type Statictics struct {
 
 // StaticticDetail represent statictics details
 type StaticticDetail struct {
-	UploadedBytes   int
-	DownloadedBytes int
-	FilesAdded      int
-	SessionCount    int
-	SecondsActive   int
+	UploadedBytes   int64
+	DownloadedBytes int64
+	FilesAdded      int64
+	SessionCount    int64
+	SecondsActive   int64
 }
 
 // Units in session

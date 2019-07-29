@@ -179,12 +179,12 @@ type Torrent struct {
 	SeedIdleMode            int
 	SeedRatioLimit          float64
 	SeedRatioMode           int
-	SizeWhenDone            int
+	SizeWhenDone            int64
 	StartDate               int
 	Status                  int
 	Trackers                *[]Trackers
 	TrackerStats            *[]TrackerStats
-	TotalSize               int
+	TotalSize               int64
 	TorrentFile             string
 	UploadedEver            int
 	UploadLimit             int
@@ -197,14 +197,14 @@ type Torrent struct {
 
 // File transmission API response
 type File struct {
-	BytesCompleted int
-	Length         int
+	BytesCompleted int64
+	Length         int64
 	Name           string
 }
 
 // FileStats transmission API response
 type FileStats struct {
-	BytesCompleted int
+	BytesCompleted int64
 	Wanted         bool
 	Priority       int
 }

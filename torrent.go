@@ -129,13 +129,13 @@ type Torrent struct {
 	AddedDate               int
 	BandwidthPriority       int
 	Comment                 string
-	CorruptEver             int
+	CorruptEver             int64
 	Creator                 string
 	DateCreated             int
-	DesiredAvailable        int
+	DesiredAvailable        int64
 	DoneDate                int
 	DownloadDir             string
-	DownloadedEver          int
+	DownloadedEver          int64
 	DownloadLimit           int
 	DownloadLimited         bool
 	Error                   int
@@ -145,14 +145,14 @@ type Torrent struct {
 	Files                   *[]File
 	FileStats               *[]FileStats
 	HashString              string
-	HaveUnchecked           int
-	HaveValid               int
+	HaveUnchecked           int64
+	HaveValid               int64
 	HonorsSessionLimits     bool
 	ID                      int
 	IsFinished              bool
 	IsPrivate               bool
 	IsStalled               bool
-	LeftUntilDone           int
+	LeftUntilDone           int64
 	MagnetLink              string
 	ManualAnnounceTime      int
 	MaxConnectedPeers       int
@@ -186,7 +186,7 @@ type Torrent struct {
 	TrackerStats            *[]TrackerStats
 	TotalSize               int64
 	TorrentFile             string
-	UploadedEver            int
+	UploadedEver            int64
 	UploadLimit             int
 	UploadLimited           bool
 	UploadRatio             float64

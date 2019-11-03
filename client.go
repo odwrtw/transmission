@@ -140,6 +140,10 @@ func (c *Client) request(tReq *Request, tResp *Response) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return fmt.Errorf("got http error %s", resp.Status)
+	}
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err

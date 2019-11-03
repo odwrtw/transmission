@@ -1,11 +1,12 @@
-Transmission JSON RPC API library
+Transmission JSON RPC client
 =================================
 
-Implement all available methode, for details see the [documentation](https://trac.transmissionbt.com/browser/trunk/extras/rpc-spec.txt?rev=14463).
+This library implements a JSON RPC client for interaction with Transmission
+remotely.
 
+For more information about the underlaying API, see the official [documentation](https://trac.transmissionbt.com/browser/trunk/extras/rpc-spec.txt?rev=14463).
 
 ## Usage
-
 
 ```go
 package main
@@ -20,7 +21,7 @@ import (
 )
 
 func main() {
-        // Simple client
+        // Let's create a simple client
         conf := transmission.Config{
                 Address: "http://localhost:9091/transmission/rpc",
         }
@@ -29,7 +30,7 @@ func main() {
                 pretty.Println(err)
         }
 
-        // With untrusted SSL
+        // With a self signed certificate
         tr := &http.Transport{
                 TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
         }
@@ -44,7 +45,7 @@ func main() {
                 pretty.Println(err)
         }
 
-        // Get all torrents
+        // Get all the torrents
         torrents, err := t.GetTorrents()
         if err != err {
                 pretty.Println(err)
@@ -57,7 +58,7 @@ func main() {
                 pretty.Println(err)
         }
 
-        // Update is information
+        // Update it
         torrent.Update()
         pretty.Println(torrent)
 
@@ -67,9 +68,8 @@ func main() {
                 pretty.Println(err)
         }
 
-        // Get session informations
+        // Update and print the current session
         t.Session.Update()
         pretty.Println(t.Session)
-
 }
 ```

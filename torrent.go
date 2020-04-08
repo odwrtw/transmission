@@ -263,7 +263,7 @@ type TrackerStats struct {
 	LastScrapeStartTime   int
 	LastScrapeSucceeded   bool
 	LastScrapeTime        int
-	LastScrapeTimedOut    int
+	LastScrapeTimedOut    bool
 	LeecherCount          int
 	NextAnnounceTime      int
 	NextScrapeTim         int

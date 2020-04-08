@@ -4,7 +4,7 @@ Transmission JSON RPC client
 This library implements a JSON RPC client for interacting with Transmission
 remotely.
 
-For more information about the underlaying API, see the official [documentation](https://trac.transmissionbt.com/browser/trunk/extras/rpc-spec.txt?rev=14463).
+For more information about the underlaying API, see the official [documentation](https://github.com/transmission/transmission/blob/master/extras/rpc-spec.txt).
 
 ## Usage
 

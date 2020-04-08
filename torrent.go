@@ -42,6 +42,7 @@ var torrentGetFields = []string{
 	"haveValid",
 	"honorsSessionLimits",
 	"id",
+	"labels",
 	"isFinished",
 	"isPrivate",
 	"isStalled",
@@ -105,6 +106,7 @@ type SetTorrentArg struct {
 	FilesUnwanted       []int    `json:"files-unwanted,omitempty"`
 	HonorsSessionLimits bool     `json:"honorsSessionLimits,omitempty"`
 	Ids                 int      `json:"ids"`
+	Labels              []string `json:"labels,omitempty"`
 	Location            string   `json:"location,omitempty"`
 	PeerLimit           int      `json:"peer-limit,omitempty"`
 	PriorityHigh        []int    `json:"priority-high,omitempty"`
@@ -152,6 +154,7 @@ type Torrent struct {
 	IsFinished              bool
 	IsPrivate               bool
 	IsStalled               bool
+	Labels                  []string
 	LeftUntilDone           int64
 	MagnetLink              string
 	ManualAnnounceTime      int

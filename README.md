@@ -6,6 +6,16 @@ remotely.
 
 For more information about the underlaying API, see the official [documentation](https://github.com/transmission/transmission/blob/master/extras/rpc-spec.txt).
 
+## Versions
+
+The master branch of this repository is compatible with the master branch of the upstream transmission project.
+
+If you want to use this lib with transmission 2.94 please import this project using this command:
+
+```sh
+go get -u -v github.com/odwrtw/transmission@2.94
+```
+
 ## Usage
 
 ```go

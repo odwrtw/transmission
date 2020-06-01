@@ -101,19 +101,19 @@ type Session struct {
 	Version                   string  `json:"version"`
 }
 
-// Statictics represent session statictics
-type Statictics struct {
+// Statistics represent session statistics
+type Statistics struct {
 	ActiveTorrentCount int
 	DownloadSpeed      int
 	PausedTorrentCount int
 	TorrentCount       int
 	UploadSpeed        int
-	CumulativeStats    *StaticticDetail `json:"cumulative-stats"`
-	CurrentStats       *StaticticDetail `json:"current-stats"`
+	CumulativeStats    *StatisticDetail `json:"cumulative-stats"`
+	CurrentStats       *StatisticDetail `json:"current-stats"`
 }
 
-// StaticticDetail represent statictics details
-type StaticticDetail struct {
+// StatisticDetail represent statistics details
+type StatisticDetail struct {
 	UploadedBytes   int64
 	DownloadedBytes int64
 	FilesAdded      int64
@@ -159,19 +159,19 @@ func (s *Session) Update() error {
 	return nil
 }
 
-// Stats return session statictics
-func (s *Session) Stats() (Statictics, error) {
+// Stats return session statistics
+func (s *Session) Stats() (Statistics, error) {
 	tReq := &Request{
 		Method: "session-stats",
 	}
 
-	stat := Statictics{}
+	stat := Statistics{}
 
 	r := &Response{Arguments: &stat}
 
 	err := s.Client.request(tReq, r)
 	if err != nil {
-		return Statictics{}, err
+		return Statistics{}, err
 	}
 
 	return stat, nil

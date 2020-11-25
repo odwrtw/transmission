@@ -72,7 +72,7 @@ type Response struct {
 // Do low level function for interact with transmission only take care of
 // authentification and session id
 func (c *Client) Do(req *http.Request, retry bool) (*http.Response, error) {
-	if c.User != "" && c.Password != "" {
+	if c.User != "" || c.Password != "" {
 		req.SetBasicAuth(c.User, c.Password)
 	}
 	if c.sessionID != "" {

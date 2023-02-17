@@ -193,7 +193,7 @@ type Torrent struct {
 	UploadLimit             int
 	UploadLimited           bool
 	UploadRatio             float64
-	Wanted                  []int
+	Wanted                  []bool
 	Webseeds                []string
 	WebseedsSendingToUs     int
 }
